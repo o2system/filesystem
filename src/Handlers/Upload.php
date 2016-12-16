@@ -6,38 +6,102 @@
  * file that was distributed with this source code.
  *
  * @author         Steeve Andrian Salim
- *                 Mohamad Rafi Randoni
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
 // ------------------------------------------------------------------------
 
 namespace O2System\Filesystem\Handlers;
 
-use O2System\Kernel\Http\Message\ServerRequest;
-use O2System\Kernel\Http\Message\UploadFile;
-use O2System\Kernel\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException;
-use O2System\Kernel\Spl\Exceptions\Logic\InvalidArgumentException;
-use O2System\Kernel\Spl\Exceptions\Runtime\OverflowException;
+// ------------------------------------------------------------------------
 
+use O2System\Kernel\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException;
+
+/**
+ * Class Upload
+ *
+ * @package O2System\Filesystem\Handlers
+ */
 class Upload
 {
+    /**
+     * Upload::$path
+     *
+     * Upload file destination path.
+     *
+     * @var string
+     */
+    protected $path;
 
     /**
-     * Upload configuration
+     * Upload::$maxIncrementFilename
+     *
+     * Maximum incremental uploaded filename.
+     *
+     * @var int
+     */
+    protected $maxIncrementFilename = 100;
+
+    /**
+     * Upload::$allowedMimes
+     *
+     * Allowed uploaded file mime types.
      *
      * @var array
      */
-    protected $config = [ ];
+    protected $allowedMimes;
 
     /**
-     * Upload Info
+     * Upload::$allowedExtensions
+     *
+     * Allowed uploaded file extensions.
      *
      * @var array
      */
-    protected $info = [ ];
+    protected $allowedExtensions;
 
     /**
-     * Upload Errors
+     * Upload::$allowedFileSize
+     *
+     * Allowed uploaded file size.
+     *
+     * @var array
+     */
+    protected $allowedFileSize = [
+        'min' => 0,
+        'max' => 0,
+    ];
+
+    /**
+     * Upload::$allowedImageSize
+     *
+     * Allowed uploaded image size.
+     *
+     * @var array
+     */
+    protected $allowedImageSize = [
+        'width'  => [
+            'min' => 0,
+            'max' => 0,
+        ],
+        'height' => [
+            'min' => 0,
+            'max' => 0,
+        ],
+    ];
+
+    /**
+     * Upload::$targetFilename
+     *
+     * Upload target filename.
+     *
+     * @var string
+     */
+    protected $targetFilename;
+
+    /**
+     * Upload::$errors
+     *
+     * Upload error logs.
      *
      * @var array
      */
@@ -45,331 +109,311 @@ class Upload
 
     // --------------------------------------------------------------------------------------
 
-    public function __construct ()
+    /**
+     * Upload::__construct
+     *
+     * @param array $config
+     *
+     * @throws \O2System\Kernel\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
+     * @throws \O2System\Kernel\Spl\Exceptions\Logic\InvalidArgumentException
+     */
+    public function __construct ( array $config = [ ] )
     {
-        if ( ! class_exists( 'finfo' ) ) {
-            throw new BadDependencyCallException( 'Upload: The fileinfo extension must be loaded.', 1 );
+        if ( ! extension_loaded( 'finfo' ) ) {
+            throw new BadDependencyCallException( 'E_UPLOAD_FINFO_EXTENSION' );
         }
 
-        // $default_config = config()->upload;
+        if ( isset( $config[ 'path' ] ) ) {
+            $config[ 'path' ] = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $config[ 'path' ] );
 
-        if ( isset( $default_config ) ) {
-            if ( isset( $default_config[ 'path' ] ) AND isset( $config[ 'path' ] ) ) {
-                $config[ 'path' ] = str_replace( '/', DIRECTORY_SEPARATOR, $config[ 'path' ] );
-
+            if ( is_dir( $config[ 'path' ] ) ) {
+                $this->path = $config[ 'path' ];
+            } elseif ( defined( 'PATH_STORAGE' ) ) {
                 if ( is_dir( $config[ 'path' ] ) ) {
-                    $this->config[ 'path' ] = trim( $config[ 'path' ], DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR;
-                } else if ( is_dir( $default_config[ 'path' ] . trim( $config[ 'path' ], DIRECTORY_SEPARATOR ) ) ) {
-                    $this->config[ 'path' ] = $default_config[ 'path' ] . trim(
-                            $config[ 'path' ],
-                            DIRECTORY_SEPARATOR
-                        ) . DIRECTORY_SEPARATOR;
+                    $this->path = $config[ 'path' ];
                 } else {
-                    $this->config[ 'path' ] = rtrim(
-                                                  $default_config[ 'path' ],
-                                                  DIRECTORY_SEPARATOR
-                                              ) . DIRECTORY_SEPARATOR;
+                    $this->path = PATH_STORAGE . str_replace( PATH_STORAGE, '', $config[ 'path' ] );
                 }
-
-                unset( $default_config[ 'path' ], $config[ 'path' ] );
+            } else {
+                $this->path = dirname( $_SERVER[ 'SCRIPT_FILENAME' ] ) . DIRECTORY_SEPARATOR . $config[ 'path' ];
             }
-
-            $this->config = array_merge_recursive( $this->config, $config, $default_config );
+        } elseif ( defined( 'PATH_STORAGE' ) ) {
+            $this->path = PATH_STORAGE;
         } else {
-            $config = [
-                'allowed_mimes' => [ ],
-                'allowed_extensions' => [ 'txt', 'md' ],
-                'path' => PATH_PUBLIC . '/uploads',
-            ];
-            $this->config = array_merge_recursive( $this->config, $config );
+            $this->path = dirname( $_SERVER[ 'SCRIPT_FILENAME' ] ) . DIRECTORY_SEPARATOR . 'upload';
         }
 
-        if ( isset( $this->config[ 'allowed_mimes' ] ) ) {
-            $this->setAllowedMimes( $this->config[ 'allowed_mimes' ] );
+        $this->path = rtrim( $this->path, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR;
+
+        if ( isset( $config[ 'allowedMimes' ] ) ) {
+            $this->setAllowedMimes( $config[ 'allowedMimes' ] );
         }
 
-        if ( isset( $this->config[ 'allowed_extensions' ] ) ) {
-            $this->setAllowedExtensions( $this->config[ 'allowed_extensions' ] );
+        if ( isset( $config[ 'allowedExtensions' ] ) ) {
+            $this->setAllowedExtensions( $config[ 'allowedExtensions' ] );
         }
     }
 
     /**
-     * Set allowed mime for uploaded extension
+     * Upload::setAllowedMimes
      *
-     * @param string|array $mimes
+     * Set allowed mime for uploaded file.
      *
-     * @throws InvalidArgumentException
+     * @param string|array $mimes List of allowed file mime types.
+     *
+     * @return static
      */
-    public function setAllowedMimes ( $mimes = '' )
+    public function setAllowedMimes ( $mimes )
     {
-        if ( $mimes == '' ) {
-            throw new InvalidArgumentException( 'E_HEADER_INVALIDARGUMENTEXCEPTION', 1 );
-        }
-
         if ( is_string( $mimes ) ) {
             $mimes = explode( ',', $mimes );
         }
 
-        $this->config[ 'allowed_mimes' ] = array_map( 'trim', $mimes );
+        $this->allowedMimes = array_map( 'trim', $mimes );
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------------------
 
     /**
-     * Set allowed extension for uploaded file
+     * Upload::setAllowedExtensions
      *
-     * @param string|array $extensions
+     * Set allowed extensions for uploaded file.
      *
-     * @throws InvalidArgumentException
+     * @param string|array $extensions List of allowed file extensions.
+     *
+     * @return static
      */
     public function setAllowedExtensions ( $extensions )
     {
-        if ( $extensions == '' ) {
-            throw new InvalidArgumentException( 'E_HEADER_INVALIDARGUMENTEXCEPTION', 1 );
-        }
-
         if ( is_string( $extensions ) ) {
             $extensions = explode( ',', $extensions );
         }
 
-        $this->config[ 'allowed_extensions' ] = array_map( 'trim', $extensions );
+        $this->allowedExtensions = array_map( 'trim', $extensions );
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------------------
 
     /**
-     * [setPath description]
+     * Upload::setPath
+     *
+     * Sets uploaded file path.
      *
      * @param string $path [description]
      *
-     * @throws InvalidArgumentException
+     * @return static
      */
     public function setPath ( $path = '' )
     {
-        if ( $path == '' ) {
-            throw new InvalidArgumentException( 'E_HEADER_INVALIDARGUMENTEXCEPTION', 1 );
+        if ( is_dir( $path ) ) {
+            $this->path = $path;
+        } elseif ( defined( 'PATH_STORAGE' ) ) {
+            if ( is_dir( $path ) ) {
+                $this->path = $path;
+            } else {
+                $this->path = PATH_STORAGE . str_replace( PATH_STORAGE, '', $path );
+            }
+        } else {
+            $this->path = dirname( $_SERVER[ 'SCRIPT_FILENAME' ] ) . DIRECTORY_SEPARATOR . $path;
         }
-
-        $this->config[ 'path' ] = $path . DIRECTORY_SEPARATOR;
     }
 
     // --------------------------------------------------------------------------------------
 
     /**
-     * Set minimal size
+     * Upload::setMinFileSize
      *
-     * @param integer $size
-     * @param string  $unit
+     * Set minimum file size
+     *
+     * @param int    $fileSize Allowed minimum file size.
+     * @param string $unit     Allowed minimum file size unit conversion.
+     *
+     * @return static
      */
-    public function setMinSize ( $size, $unit = 'M' )
+    public function setMinFileSize ( $fileSize, $unit = 'M' )
     {
         switch ( $unit ) {
             case 'B':
-                $size = (int) $size;
+                $fileSize = (int) $fileSize;
                 break;
             case 'K':
-                $size = (int) $size * 1000;
+                $fileSize = (int) $fileSize * 1000;
                 break;
             case 'M':
-                $size = (int) $size * 1000000;
+                $fileSize = (int) $fileSize * 1000000;
                 break;
             case 'G':
-                $size = (int) $size * 1000000000;
+                $fileSize = (int) $fileSize * 1000000000;
                 break;
         }
-        $this->config[ 'min_size' ] = (int) $size . $unit;
+
+        $this->allowedFileSize[ 'min' ] = (int) $fileSize;
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------------------
 
     /**
-     * Set max size
+     * Upload::setMaxFileSize
      *
-     * @param integer $size
-     * @param string  $unit
+     * Set maximum file size
+     *
+     * @param int    $fileSize Allowed maximum file size.
+     * @param string $unit     Allowed maximum file size unit conversion.
+     *
+     * @return static
      */
-    public function setMaxSize ( $size, $unit = 'M' )
+    public function setMaxFileSize ( $fileSize, $unit = 'M' )
     {
         switch ( $unit ) {
             case 'B':
-                $size = (int) $size;
+                $fileSize = (int) $fileSize;
                 break;
             case 'K':
-                $size = (int) $size * 1000;
+                $fileSize = (int) $fileSize * 1000;
                 break;
             case 'M':
-                $size = (int) $size * 1000000;
+                $fileSize = (int) $fileSize * 1000000;
                 break;
             case 'G':
-                $size = (int) $size * 1000000000;
+                $fileSize = (int) $fileSize * 1000000000;
                 break;
         }
-        $this->config[ 'max_size' ] = (int) $size;
+
+        $this->allowedFileSize[ 'max' ] = (int) $fileSize;
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------------------
 
     /**
-     * Set minimal width
+     * Upload::setTargetFilename
      *
-     * @param integer $width
+     * Sets target filename.
+     *
+     * @param string $filename           The target filename.
+     * @param string $conversionFunction Conversion function name, by default it's using dash inflector function.
+     *
+     * @return static
      */
-    public function setMinWidth ( $width = 0 )
+    public function setTargetFilename ( $filename, $conversionFunction = 'dash' )
     {
-        $this->config[ 'min_width' ] = (int) $width;
+        $this->targetFilename = call_user_func_array(
+            $conversionFunction,
+            [
+                strtolower(
+                    trim(
+                        $filename
+                    )
+                ),
+            ]
+        );
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------------------
 
     /**
-     * Set minimal height
+     * Upload::setMaxIncrementFilename
      *
-     * @param integer $height
-     */
-    public function setMinHeight ( $height = 0 )
-    {
-        $this->config[ 'min_height' ] = (int) $height;
-    }
-
-    // --------------------------------------------------------------------------------------
-
-    /**
-     * Set max width
+     * @param int $increment Maximum increment counter.
      *
-     * @param integer $width
-     */
-    public function setMaxWidth ( $width = 0 )
-    {
-        $this->config[ 'max_width' ] = (int) $width;
-    }
-
-    // --------------------------------------------------------------------------------------
-
-    /**
-     * Set max height
-     *
-     * @param integer $height
-     */
-    public function setMaxHeight ( $height = 0 )
-    {
-        $this->config[ 'max_height' ] = (int) $height;
-    }
-
-    // --------------------------------------------------------------------------------------
-
-    /**
-     * Set uploaded file's name
-     *
-     * @param string $filename
-     * @param string $delimiter
-     */
-    public function setFilename ( $filename, $delimiter = '-' )
-    {
-        $filename = strtolower( trim( $filename ) );
-        $filename = preg_replace( '/[^\w-]/', '', $filename );;
-
-        if ( $delimiter === '-' ) {
-            $filename = preg_replace( '/[ _]+/', '-', $filename );
-        } elseif ( $delimiter === '_' ) {
-            $filename = preg_replace( '/[ -]+/', '_', $filename );
-        }
-
-        $this->config[ 'filename' ] = $filename;
-    }
-
-    // --------------------------------------------------------------------------------------
-
-    /**
-     * Set max filename's increment
-     *
-     * @param integer $increment
+     * @return static
      */
     public function setMaxIncrementFilename ( $increment = 0 )
     {
-        $this->config[ 'max_increment_filename' ] = (int) $increment;
+        $this->maxIncrementFilename = (int) $increment;
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------------------
 
     /**
-     * Upload file
+     * Upload::process
      *
-     * @param string $field
+     * @param string|null $field Field offset server uploaded files
      *
-     * @return boolean|array
+     * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function doUpload ( $field )
+    public function process ( $field = null )
     {
-        if ( $errors = $this->uploadFile( $field ) ) {
-            return true;
+        $uploadFiles = input()->files( $field );
+
+        if ( ! is_array( $uploadFiles ) ) {
+            $uploadFiles = [ $uploadFiles ];
         }
 
-        return $errors;
-    }
-
-    // --------------------------------------------------------------------------------------
-
-    /**
-     * Upload file to target path
-     *
-     * @param  string $field
-     *
-     * @return boolean|array
-     */
-    protected function uploadFile ( $field )
-    {
-        $serverRequest = new ServerRequest;
-        $uploadFile = $serverRequest->getUploadedFiles( $field );
-
-        $uploadFile = $uploadFile[ $field ];
-
-        /* Make $uploadFile as an array */
-        // if ( ! is_array($uploadFile)) $uploadFile[] = $uploadFile;
-
         $i = 1;
-        $errors = [ ];
-        foreach ( $uploadFile as $file ) {
-            if ( $i > $this->config[ 'max_increment_filename' ] ) {
-                throw new OverflowException( 'E_HEADER_OVERFLOWEXCEPTION', 1 );
+        foreach ( $uploadFiles as $file ) {
+            if ( $i > $this->maxIncrementFilename ) {
+                $this->errors[] = language()->getLine(
+                    'E_UPLOAD_MAXIMUM_INCREMENT_FILENAME',
+                    [ $this->maxIncrementFilename ]
+                );
             }
 
-            $targetPath = $this->config[ 'path' ];
-            $filename = $this->config[ 'filename' ];
+            $targetPath = $this->path;
+            $filename = $this->targetFilename;
 
             /* Validate extension */
-            if ( isset( $this->config[ 'allowed_extensions' ] ) and count(
-                                                                        $this->config[ 'allowed_extensions' ]
-                                                                    ) > 0
-            ) {
-                $this->validateExtension( $file, $this->config[ 'allowed_extensions' ] );
+            if ( is_array( $this->allowedExtensions ) ) {
+                if ( ! in_array( $file->getExtension(), $this->allowedExtensions ) ) {
+                    $this->errors[] = language()->getLine(
+                        'E_UPLOAD_ALLOWED_EXTENSIONS',
+                        [ $this->allowedExtensions, $file->getExtension() ]
+                    );
+                }
             }
 
             /* Validate mime */
-            if ( isset( $this->config[ 'allowed_mimes' ] ) and count( $this->config[ 'allowed_mimes' ] ) > 0 ) {
-                $this->validateMime( $file, $this->config[ 'allowed_mimes' ] );
+            if ( is_array( $this->allowedMimes ) ) {
+                if ( ! in_array( $file->getFileMime(), $this->allowedMimes ) ) {
+                    $this->errors[] = language()->getLine(
+                        'E_UPLOAD_ALLOWED_MIMES',
+                        [ $this->allowedMimes, $file->getFileMime() ]
+                    );
+                }
             }
 
             /* Validate min size */
-            if ( isset( $this->config[ 'min_size' ] ) and $this->config[ 'min_size' ] > 0 ) {
-                $this->validateMinSize( $file, $this->config[ 'min_size' ] );
+            if ( $this->allowedFileSize[ 'min' ] > 0 ) {
+                if ( $file->getFileSize() < $this->allowedFileSize[ 'min' ] ) {
+                    $this->errors[] = language()->getLine(
+                        'E_UPLOADED_ALLOWED_MIN_FILESIZE',
+                        [ $this->allowedFileSize[ 'min' ], $file->getFileSize() ]
+                    );
+                }
             }
 
             /* Validate max size */
-            if ( isset( $this->config[ 'max_size' ] ) and $this->config[ 'max_size' ] > 0 ) {
-                $this->validateMaxSize( $file, $this->config[ 'max_size' ] );
+            if ( $this->allowedFileSize[ 'min' ] > 0 ) {
+                if ( $file->getFileSize() > $this->allowedFileSize[ 'max' ] ) {
+                    $this->errors[] = language()->getLine(
+                        'E_UPLOADED_ALLOWED_MAX_FILESIZE',
+                        [ $this->allowedFileSize[ 'max' ], $file->getFileSize() ]
+                    );
+                }
             }
 
             if ( ! is_file( $targetPath . $filename . '-' . $i . '.' . $file->getExtension() ) ) {
                 $filename = $filename . '-' . $i . '.' . $file->getExtension();
                 $file->moveTo( $targetPath . $filename );
 
-                $errors[] = $file->getError();
+                $this->errors[] = $file->getError();
                 $i = $i + 1;
             }
         }
 
-        if ( count( $errors ) > 1 ) {
-            return $errors;
+        if ( count( $this->errors ) ) {
+            return false;
         }
 
         return true;
@@ -378,91 +422,9 @@ class Upload
     // --------------------------------------------------------------------------------------
 
     /**
-     * Validate uploaded file extension
+     * Upload::getErrors
      *
-     * @param  UploadFile $file
-     * @param  array      $allowed_extensions
-     *
-     * @throws InvalidArgumentException
-     * @return null
-     */
-    protected function validateExtension ( UploadFile $file, $allowed_extensions = [ ] )
-    {
-        if ( ! in_array( $file->getExtension(), $allowed_extensions ) ) {
-            throw new InvalidArgumentException( 'E_HEADER_INVALIDARGUMENTEXCEPTION', 1 );
-        }
-    }
-
-    // --------------------------------------------------------------------------------------
-
-    /**
-     * Validate uploaded file mime
-     *
-     * @param  UploadFile $file
-     * @param  array      $allowed_mimes
-     *
-     * @return null
-     */
-    protected function validateMime ( UploadFile $file, $allowed_mimes = [ ] )
-    {
-        $mime = $file->getFileMime();
-        if ( ! in_array( $mime, $allowed_mimes ) ) {
-            throw new InvalidArgumentException( 'E_HEADER_INVALIDARGUMENTEXCEPTION', 1 );
-        }
-    }
-
-    // --------------------------------------------------------------------------------------
-
-    /**
-     * Validate uploaded minimal size
-     *
-     * @param  UploadFile $file
-     * @param  integer    $minSize
-     *
-     * @throws OverflowException
-     * @return null
-     */
-    protected function validateMinSize ( UploadFile $file, $minSize = 0 )
-    {
-        if ( $file->getSize() < $minSize ) {
-            throw new OverflowException( 'E_HEADER_OVERFLOWEXCEPTION', 1 );
-        }
-    }
-
-    // --------------------------------------------------------------------------------------
-
-    /**
-     * Validate uploaded file max size
-     *
-     * @param  UploadFile $file
-     * @param  integer    $maxSize
-     *
-     * @throws OverflowException
-     * @return null
-     */
-    protected function validateMaxSize ( UploadFile $file, $maxSize = 0 )
-    {
-        if ( $file->getSize() > $maxSize ) {
-            throw new OverflowException( 'E_HEADER_OVERFLOWEXCEPTION', 1 );
-        }
-    }
-
-    // --------------------------------------------------------------------------------------
-
-    /**
-     * Get upload info
-     *
-     * @return array
-     */
-    public function getInfo ()
-    {
-        return $this->info;
-    }
-
-    // --------------------------------------------------------------------------------------
-
-    /**
-     * Get upload errors
+     * Get upload errors.
      *
      * @return array
      */
@@ -470,7 +432,4 @@ class Upload
     {
         return $this->errors;
     }
-
-    // --------------------------------------------------------------------------------------
-
 }

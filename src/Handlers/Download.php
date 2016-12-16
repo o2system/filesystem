@@ -1,55 +1,132 @@
 <?php
 /**
- * git
+ * This file is part of the O2System PHP Framework package.
  *
- * @author      Steeve Andrian Salim
- * @created     06/10/2016 11:22
- * @copyright   Copyright (c) 2016 Steeve Andrian Salim
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author         Steeve Andrian Salim
+ * @copyright      Copyright (c) Steeve Andrian Salim
  */
+// ------------------------------------------------------------------------
 
 namespace O2System\Filesystem\Handlers;
 
+// ------------------------------------------------------------------------
 
+/**
+ * Class Download
+ *
+ * @package O2System\Filesystem\Handlers
+ */
 class Download
 {
-    protected $filename       = null;
+    /**
+     * Download::$filePath
+     *
+     * The file path to be downloaded.
+     *
+     * @var string
+     */
+    protected $filePath = null;
 
-    protected $data           = false;
+    /**
+     * Download::$data
+     *
+     * The data to be downloaded.
+     *
+     * @var string
+     */
+    protected $data = false;
 
-    protected $mime           = 'application/octet-stream';
+    /**
+     * Download::$mime
+     *
+     * Download file mime type.
+     *
+     * @var string
+     */
+    protected $mime = 'application/octet-stream';
 
-    protected $speed          = 0;
+    /**
+     * Download::$speed
+     *
+     * Download speed limit.
+     *
+     * @var int
+     */
+    protected $speed = 0;
 
-    protected $partialEnabled = false;
+    /**
+     * Download::$partialEnabled
+     *
+     * Download file partial enabled flag.
+     *
+     * @var bool
+     */
+    public $partialEnabled = false;
 
-    public function __construct ( $filename = null )
+    // ------------------------------------------------------------------------
+
+    /**
+     * Download::__construct
+     *
+     * @param string|null $filePath The file to be downloaded.
+     */
+    public function __construct ( $filePath = null )
     {
-        if ( ! is_null( $filename ) ) {
-            $this->setFile( $filename );
+        if ( ! is_null( $filePath ) ) {
+            $this->setFilePath( $filePath );
         }
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Set filename
+     * Download::setFilePath
      *
-     * @param string $filename
+     * Sets file to be downloaded.
+     *
+     * @param   string $filePath The file path to be downloaded.
+     *
+     * @return  static
      */
-    public function setFile ( $filename )
+    public function setFilePath ( $filePath )
     {
-        $this->filename = $filename;
+        $this->filePath = $filePath;
 
         return $this;
     }
 
     // --------------------------------------------------------------------------------------
 
+    /**
+     * Download::setData
+     *
+     * Sets the data to be downloaded.
+     *
+     * @param string $data Data to be downloaded.
+     *
+     * @return static
+     */
     public function setData ( $data )
     {
         $this->data = $data;
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------------------
 
+    /**
+     * Download::setSpeed
+     *
+     * Sets download speed.
+     *
+     * @param int $speed Download speed limit.
+     *
+     * @return static
+     */
     public function setSpeed ( $speed = 0 )
     {
         $this->speed = $speed;
@@ -59,15 +136,15 @@ class Download
 
     // --------------------------------------------------------------------------------------
 
-    public function setPartial ()
-    {
-        $this->partialEnabled = true;
-
-        return $this;
-    }
-
-    // --------------------------------------------------------------------------------------
-
+    /**
+     * Download::setMime
+     *
+     * Sets downloaded file mime type.
+     *
+     * @param   string $mime The downloaded file mime type.
+     *
+     * @return static
+     */
     public function setMime ( $mime )
     {
         $this->mime = $mime;
@@ -77,35 +154,50 @@ class Download
 
     // --------------------------------------------------------------------------------------
 
-    public function render ()
+    /**
+     * Download::process
+     *
+     * Force download the file or data
+     *
+     * @return bool
+     */
+    public function process ()
     {
-        if ( $this->filename === '' OR $this->data === '' ) {
+        if ( $this->filePath === '' OR $this->data === '' ) {
             return false;
         }
 
         if ( ! ( $this->data ) ) {
-            $filesize = strlen( $this->data );
+            $fileSize = strlen( $this->data );
         }
 
         if ( ! ( $this->data ) ) {
-            if ( ! is_file( $this->filename ) && ( $filesize = filesize( $this->filename ) ) === false ) {
+            if ( ! is_file( $this->filePath ) && ( $fileSize = filesize( $this->filePath ) ) === false ) {
                 return false;
             }
 
-            $filepath = $this->filename;
-            $filename = explode( '/', str_replace( DIRECTORY_SEPARATOR, '/', $this->filename ) );
+            $filePath = $this->filePath;
+            $filename = explode( '/', str_replace( DIRECTORY_SEPARATOR, '/', $this->filePath ) );
             $filename = end( $filename );
 
-            $filesize = filesize( $filepath );
+            $fileSize = filesize( $filePath );
         }
 
-        $x = explode( '.', $filepath );
-        $extension = end( $x );
+        $x = explode( '.', $filePath );
+        $extension = pathinfo( $filePath, PATHINFO_EXTENSION );
 
-        if ( count( $x ) !== 1 && isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) && preg_match(
-                '/Android\s(1|2\.[01])/',
-                $_SERVER[ 'HTTP_USER_AGENT' ]
-            )
+        /* It was reported that browsers on Android 2.1 (and possibly older as well)
+         * need to have the filename extension upper-cased in order to be able to
+         * download it.
+         *
+         * Reference: http://digiblog.de/2011/04/19/android-and-the-download-file-headers/
+         */
+        if ( count( $x ) !== 1 AND
+             isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) AND
+             preg_match(
+                 '/Android\s(1|2\.[01])/',
+                 $_SERVER[ 'HTTP_USER_AGENT' ]
+             )
         ) {
             $x[ count( $x ) - 1 ] = strtoupper( $extension );
             $filename = implode( '.', $x );
@@ -124,16 +216,16 @@ class Download
             list ( $fbyte, $lbyte ) = explode( "-", $range );
 
             if ( ! $lbyte ) {
-                $lbyte = $filesize - 1;
+                $lbyte = $fileSize - 1;
             }
 
-            $new_length = $lbyte - $fbyte;
+            $newLength = $lbyte - $fbyte;
 
             header( "HTTP/1.1 206 Partial Content", true );
-            header( "Content-Length: $new_length", true );
-            header( "Content-Range: bytes $fbyte-$lbyte/$filesize", true );
+            header( "Content-Length: $newLength", true );
+            header( "Content-Range: bytes $fbyte-$lbyte/$fileSize", true );
         } else {
-            header( "Content-Length: " . $filesize );
+            header( "Content-Length: " . $fileSize );
         }
 
         // Common headers
@@ -149,7 +241,7 @@ class Download
 
         // Open file
         if ( $this->data === false ) {
-            $file = fopen( $filepath, 'r' );
+            $file = fopen( $filePath, 'r' );
             if ( ! $file ) {
                 return false;
             }
@@ -172,9 +264,9 @@ class Download
         // Check for speed limit or file optimize
         if ( $this->speed > 0 OR $this->data === false ) {
             if ( $this->data === false ) {
-                $chunk_size = $this->speed > 0 ? $this->speed * 1024 : 512 * 1024;
+                $chunkSize = $this->speed > 0 ? $this->speed * 1024 : 512 * 1024;
                 while ( ! feof( $file ) and ( connection_status() == 0 ) ) {
-                    $buffer = fread( $file, $chunk_size );
+                    $buffer = fread( $file, $chunkSize );
                     echo $buffer;
                     flush();
                     if ( $this->speed > 0 ) {
@@ -185,8 +277,8 @@ class Download
             } else {
                 $index = 0;
                 $this->speed *= 1024; //convert to kb
-                while ( $index < $filesize and ( connection_status() == 0 ) ) {
-                    $left = $filesize - $index;
+                while ( $index < $fileSize and ( connection_status() == 0 ) ) {
+                    $left = $fileSize - $index;
                     $buffer_size = min( $left, $this->speed );
                     $buffer = substr( $this->data, $index, $buffer_size );
                     $index += $buffer_size;
@@ -199,5 +291,4 @@ class Download
             echo $this->data;
         }
     }
-
 }
