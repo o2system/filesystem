@@ -14,14 +14,14 @@ namespace O2System\Filesystem\Abstracts;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractCollectorPattern;
+use O2System\Psr\Patterns\AbstractDataStoragePattern;
 
 /**
  * Class AbstractFile
  *
  * @package O2System\Filesystem\Abstracts
  */
-abstract class AbstractFile extends AbstractCollectorPattern
+abstract class AbstractFile extends AbstractDataStoragePattern
 {
     /**
      * AbstractFile::$filePath

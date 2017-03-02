@@ -14,7 +14,7 @@ namespace O2System\Filesystem\Handlers;
 
 // ------------------------------------------------------------------------
 
-use O2System\Kernel\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException;
+use O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException;
 
 /**
  * Class Upload
@@ -114,8 +114,8 @@ class Upload
      *
      * @param array $config
      *
-     * @throws \O2System\Kernel\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
-     * @throws \O2System\Kernel\Spl\Exceptions\Logic\InvalidArgumentException
+     * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
+     * @throws \O2System\Spl\Exceptions\Logic\InvalidArgumentException
      */
     public function __construct ( array $config = [ ] )
     {

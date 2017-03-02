@@ -41,7 +41,7 @@ class IniFile extends AbstractFile
                 : $options[ 'sections' ] )
         );
 
-        $this->mergeItems( $items );
+        $this->merge( $items );
 
         return $items;
     }

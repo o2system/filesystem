@@ -12,7 +12,7 @@
 
 namespace O2System\Filesystem\Handlers;
 
-use O2System\Kernel\Spl\Exceptions\RuntimeException;
+use O2System\Spl\Exceptions\RuntimeException;
 
 /**
  * Class Ftp
