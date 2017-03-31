@@ -24,50 +24,6 @@ use O2System\Spl\Info\SplFileInfo;
 class File extends SplFileInfo
 {
     /**
-     * File::getMimes
-     *
-     * Get config mimes.
-     *
-     * @static
-     * @return array Returns the MIME types array from config/mimes.php
-     */
-    public static function getMimes ()
-    {
-        static $mimes;
-
-        if ( empty( $mimes ) ) {
-            if ( file_exists( __DIR__ . '/Config/Mimes.php' ) ) {
-                $mimes = require( __DIR__ . '/Config/Mimes.php' );
-            }
-        }
-
-        return $mimes;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * File::getMime
-     *
-     * Get mime info based on MIME config.
-     *
-     * @return bool|string|array
-     */
-    public function getMime ()
-    {
-        $mimes = $this->getMimes();
-        $ext = strtolower( $this->getExtension() );
-
-        if ( isset( $mimes[ $ext ] ) ) {
-            return $mimes[ $ext ];
-        }
-
-        return false;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
      * File::setGroup
      *
      * Attempts to change the group of the file filename to group.
@@ -79,7 +35,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setGroup ( $group )
+    public function setGroup( $group )
     {
         $params[] = $this->getRealPath();
         $params[] = $group;
@@ -103,7 +59,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setMode ( $mode )
+    public function setMode( $mode )
     {
         $params[] = $this->getRealPath();
         $params[] = $mode;
@@ -123,7 +79,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setOwner ( $user )
+    public function setOwner( $user )
     {
         $params[] = $this->getRealPath();
         $params[] = $user;
@@ -142,7 +98,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setLink ( $link )
+    public function setLink( $link )
     {
         $params[] = $this->getRealPath();
         $params[] = $link;
@@ -173,7 +129,7 @@ class File extends SplFileInfo
      *
      * @return string   The function returns the read data or FALSE on failure.
      */
-    public function getContents ( $useIncludePath = false, $context = null, $offset = 0, $maxlen = 0 )
+    public function getContents( $useIncludePath = false, $context = null, $offset = 0, $maxlen = 0 )
     {
         $params[] = $this->getRealPath();
         $params[] = $useIncludePath;
@@ -199,7 +155,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function touch ( $time = null, $atime = null )
+    public function touch( $time = null, $atime = null )
     {
         $params[] = $this->getRealPath();
         $params[] = ( isset( $time ) ? $time : time() );
@@ -217,7 +173,7 @@ class File extends SplFileInfo
      *
      * @return void
      */
-    public function show ()
+    public function show()
     {
         if ( $mime = $this->getMime() ) {
             $mime = is_array( $mime ) ? $mime[ 0 ] : $mime;
@@ -244,7 +200,7 @@ class File extends SplFileInfo
         $ETag = '"' . md5( $filename ) . '"';
 
         if ( ! empty( $_SERVER[ 'HTTP_IF_NONE_MATCH' ] )
-             && $_SERVER[ 'HTTP_IF_NONE_MATCH' ] == $ETag
+            && $_SERVER[ 'HTTP_IF_NONE_MATCH' ] == $ETag
         ) {
             header( 'HTTP/1.1 304 Not Modified' );
             header( 'Content-Length: ' . $fileSize );
@@ -275,6 +231,50 @@ class File extends SplFileInfo
     // ------------------------------------------------------------------------
 
     /**
+     * File::getMime
+     *
+     * Get mime info based on MIME config.
+     *
+     * @return bool|string|array
+     */
+    public function getMime()
+    {
+        $mimes = $this->getMimes();
+        $ext = strtolower( $this->getExtension() );
+
+        if ( isset( $mimes[ $ext ] ) ) {
+            return $mimes[ $ext ];
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * File::getMimes
+     *
+     * Get config mimes.
+     *
+     * @static
+     * @return array Returns the MIME types array from config/mimes.php
+     */
+    public static function getMimes()
+    {
+        static $mimes;
+
+        if ( empty( $mimes ) ) {
+            if ( file_exists( __DIR__ . '/Config/Mimes.php' ) ) {
+                $mimes = require( __DIR__ . '/Config/Mimes.php' );
+            }
+        }
+
+        return $mimes;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
      * File::read
      *
      * Outputs a file.
@@ -286,7 +286,7 @@ class File extends SplFileInfo
      * @return int  Returns the number of bytes read from the file. If an error occurs, FALSE is returned and unless
      *              the function was called as @readfile(), an error message is printed.
      */
-    public function read ( $useIncludePath = false, $context = null )
+    public function read( $useIncludePath = false, $context = null )
     {
         $params[] = $this->getRealPath();
         $params[] = $useIncludePath;
@@ -307,7 +307,7 @@ class File extends SplFileInfo
      *
      * @return bool
      */
-    public function write ( $contents, $mode = 'wb' )
+    public function write( $contents, $mode = 'wb' )
     {
         if ( ! $fp = @fopen( $this->getRealPath(), $mode ) ) {
             return false;
@@ -340,7 +340,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function rename ( $newFilename, $context = null )
+    public function rename( $newFilename, $context = null )
     {
         $params[] = $this->getRealPath();
         $params[] = dirname( $this->getRealPath() ) . DIRECTORY_SEPARATOR . $newFilename;
@@ -362,7 +362,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function copy ( $destination, $context = null )
+    public function copy( $destination, $context = null )
     {
         $params[] = $this->getRealPath();
         $params[] = $destination;
@@ -383,7 +383,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function delete ( $context = null )
+    public function delete( $context = null )
     {
         $params[] = $this->getRealPath();
         $params[] = $context;

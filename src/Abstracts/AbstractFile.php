@@ -39,7 +39,7 @@ abstract class AbstractFile extends AbstractDataStoragePattern
      *
      * @param string|null $filePath Path to the file.
      */
-    final public function __construct ( $filePath = null )
+    final public function __construct( $filePath = null )
     {
         if ( isset( $filePath ) ) {
             $this->filePath = $filePath;
@@ -55,7 +55,7 @@ abstract class AbstractFile extends AbstractDataStoragePattern
      *
      * @return static
      */
-    final public function createFile ( $filePath )
+    final public function createFile( $filePath )
     {
         $this->filePath = $filePath;
 
@@ -72,7 +72,7 @@ abstract class AbstractFile extends AbstractDataStoragePattern
      *
      * @return mixed
      */
-    abstract public function readFile ( $filePath, array $options = [ ] );
+    abstract public function readFile( $filePath, array $options = [] );
 
     // ------------------------------------------------------------------------
 
@@ -84,5 +84,5 @@ abstract class AbstractFile extends AbstractDataStoragePattern
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    abstract public function writeFile ( $filePath = null, array $options = [ ] );
+    abstract public function writeFile( $filePath = null, array $options = [] );
 }

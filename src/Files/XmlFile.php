@@ -32,14 +32,14 @@ class XmlFile extends AbstractFile
      *
      * @return mixed
      */
-    public function readFile ( $filePath, array $options = [ ] )
+    public function readFile( $filePath, array $options = [] )
     {
         $filePath = empty( $filePath )
             ? $this->filePath
             : $filePath;
 
 
-        $result = [ ];
+        $result = [];
 
         if ( false !== ( $xml = simplexml_load_string( ( new File( $filePath ) )->read() ) ) ) {
             $result = json_decode( json_encode( $result ), true ); // force to array conversion
@@ -58,7 +58,7 @@ class XmlFile extends AbstractFile
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function writeFile ( $filePath = null, array $options = [ ] )
+    public function writeFile( $filePath = null, array $options = [] )
     {
         $filePath = empty( $filePath )
             ? $this->filePath

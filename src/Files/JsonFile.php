@@ -32,13 +32,13 @@ class JsonFile extends AbstractFile
      *
      * @return mixed
      */
-    public function readFile ( $filePath, array $options = [ ] )
+    public function readFile( $filePath, array $options = [] )
     {
         $filePath = empty( $filePath )
             ? $this->filePath
             : $filePath;
 
-        $result = [ ];
+        $result = [];
 
         if ( false !== ( $json = json_decode( ( new File( $filePath ) )->read() ) ) ) {
             if ( json_last_error() === JSON_ERROR_NONE ) {
@@ -59,7 +59,7 @@ class JsonFile extends AbstractFile
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function writeFile ( $filePath = null, array $options = [ ] )
+    public function writeFile( $filePath = null, array $options = [] )
     {
         $filePath = empty( $filePath )
             ? $this->filePath

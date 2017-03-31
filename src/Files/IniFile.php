@@ -32,7 +32,7 @@ class IniFile extends AbstractFile
      *
      * @return mixed
      */
-    public function readFile ( $filePath, array $options = [ ] )
+    public function readFile( $filePath, array $options = [] )
     {
         $items = parse_ini_file(
             $filePath,
@@ -56,7 +56,7 @@ class IniFile extends AbstractFile
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function writeFile ( $filePath = null, array $options = [ ] )
+    public function writeFile( $filePath = null, array $options = [] )
     {
         $filePath = empty( $filePath )
             ? $this->filePath

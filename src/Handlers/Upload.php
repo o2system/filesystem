@@ -105,7 +105,7 @@ class Upload
      *
      * @var array
      */
-    protected $errors = [ ];
+    protected $errors = [];
 
     // --------------------------------------------------------------------------------------
 
@@ -117,7 +117,7 @@ class Upload
      * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
      * @throws \O2System\Spl\Exceptions\Logic\InvalidArgumentException
      */
-    public function __construct ( array $config = [ ] )
+    public function __construct( array $config = [] )
     {
         if ( ! extension_loaded( 'finfo' ) ) {
             throw new BadDependencyCallException( 'E_UPLOAD_FINFO_EXTENSION' );
@@ -163,7 +163,7 @@ class Upload
      *
      * @return static
      */
-    public function setAllowedMimes ( $mimes )
+    public function setAllowedMimes( $mimes )
     {
         if ( is_string( $mimes ) ) {
             $mimes = explode( ',', $mimes );
@@ -185,7 +185,7 @@ class Upload
      *
      * @return static
      */
-    public function setAllowedExtensions ( $extensions )
+    public function setAllowedExtensions( $extensions )
     {
         if ( is_string( $extensions ) ) {
             $extensions = explode( ',', $extensions );
@@ -207,7 +207,7 @@ class Upload
      *
      * @return static
      */
-    public function setPath ( $path = '' )
+    public function setPath( $path = '' )
     {
         if ( is_dir( $path ) ) {
             $this->path = $path;
@@ -234,24 +234,24 @@ class Upload
      *
      * @return static
      */
-    public function setMinFileSize ( $fileSize, $unit = 'M' )
+    public function setMinFileSize( $fileSize, $unit = 'M' )
     {
         switch ( $unit ) {
             case 'B':
-                $fileSize = (int) $fileSize;
+                $fileSize = (int)$fileSize;
                 break;
             case 'K':
-                $fileSize = (int) $fileSize * 1000;
+                $fileSize = (int)$fileSize * 1000;
                 break;
             case 'M':
-                $fileSize = (int) $fileSize * 1000000;
+                $fileSize = (int)$fileSize * 1000000;
                 break;
             case 'G':
-                $fileSize = (int) $fileSize * 1000000000;
+                $fileSize = (int)$fileSize * 1000000000;
                 break;
         }
 
-        $this->allowedFileSize[ 'min' ] = (int) $fileSize;
+        $this->allowedFileSize[ 'min' ] = (int)$fileSize;
 
         return $this;
     }
@@ -268,24 +268,24 @@ class Upload
      *
      * @return static
      */
-    public function setMaxFileSize ( $fileSize, $unit = 'M' )
+    public function setMaxFileSize( $fileSize, $unit = 'M' )
     {
         switch ( $unit ) {
             case 'B':
-                $fileSize = (int) $fileSize;
+                $fileSize = (int)$fileSize;
                 break;
             case 'K':
-                $fileSize = (int) $fileSize * 1000;
+                $fileSize = (int)$fileSize * 1000;
                 break;
             case 'M':
-                $fileSize = (int) $fileSize * 1000000;
+                $fileSize = (int)$fileSize * 1000000;
                 break;
             case 'G':
-                $fileSize = (int) $fileSize * 1000000000;
+                $fileSize = (int)$fileSize * 1000000000;
                 break;
         }
 
-        $this->allowedFileSize[ 'max' ] = (int) $fileSize;
+        $this->allowedFileSize[ 'max' ] = (int)$fileSize;
 
         return $this;
     }
@@ -302,7 +302,7 @@ class Upload
      *
      * @return static
      */
-    public function setTargetFilename ( $filename, $conversionFunction = 'dash' )
+    public function setTargetFilename( $filename, $conversionFunction = 'dash' )
     {
         $this->targetFilename = call_user_func_array(
             $conversionFunction,
@@ -327,9 +327,9 @@ class Upload
      *
      * @return static
      */
-    public function setMaxIncrementFilename ( $increment = 0 )
+    public function setMaxIncrementFilename( $increment = 0 )
     {
-        $this->maxIncrementFilename = (int) $increment;
+        $this->maxIncrementFilename = (int)$increment;
 
         return $this;
     }
@@ -343,7 +343,7 @@ class Upload
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function process ( $field = null )
+    public function process( $field = null )
     {
         $uploadFiles = input()->files( $field );
 
@@ -428,7 +428,7 @@ class Upload
      *
      * @return array
      */
-    public function getErrors ()
+    public function getErrors()
     {
         return $this->errors;
     }

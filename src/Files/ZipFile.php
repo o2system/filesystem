@@ -31,14 +31,14 @@ class ZipFile extends AbstractFile
      *
      * @return mixed
      */
-    public function readFile ( $filePath, array $options = [ ] )
+    public function readFile( $filePath, array $options = [] )
     {
         $filePath = empty( $filePath )
             ? $this->filePath
             : $filePath;
 
 
-        $result = [ ];
+        $result = [];
 
         if ( extension_loaded( 'zip' ) ) {
             if ( $zipHandle = zip_open( $filePath ) ) {
@@ -63,7 +63,7 @@ class ZipFile extends AbstractFile
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function writeFile ( $filePath = null, array $options = [ ] )
+    public function writeFile( $filePath = null, array $options = [] )
     {
         $filePath = empty( $filePath )
             ? $this->filePath
@@ -103,7 +103,7 @@ class ZipFile extends AbstractFile
      * @param string      $sourcePath Path of directory to be zip.
      * @param string|null $filePath   Path to the zip file.
      */
-    public function compress ( $sourcePath, $filePath = null )
+    public function compress( $sourcePath, $filePath = null )
     {
         $filePath = empty( $filePath )
             ? $this->filePath
@@ -127,7 +127,7 @@ class ZipFile extends AbstractFile
      * @param int         $exclusiveLength Number of text to be exclusive from the file path.
      * @param \ZipArchive $zipArchive      Zip Archive instance.
      */
-    private function recursiveCompress ( $directory, $exclusiveLength, &$zipArchive )
+    private function recursiveCompress( $directory, $exclusiveLength, &$zipArchive )
     {
         $handle = opendir( $directory );
 
@@ -159,7 +159,7 @@ class ZipFile extends AbstractFile
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function extract ( $destinationPath )
+    public function extract( $destinationPath )
     {
         if ( extension_loaded( 'zip' ) ) {
             if ( is_file( $this->filePath ) ) {

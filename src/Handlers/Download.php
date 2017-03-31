@@ -22,6 +22,14 @@ namespace O2System\Filesystem\Handlers;
 class Download
 {
     /**
+     * Download::$partialEnabled
+     *
+     * Download file partial enabled flag.
+     *
+     * @var bool
+     */
+    public $partialEnabled = false;
+    /**
      * Download::$filePath
      *
      * The file path to be downloaded.
@@ -29,7 +37,6 @@ class Download
      * @var string
      */
     protected $filePath = null;
-
     /**
      * Download::$data
      *
@@ -38,7 +45,6 @@ class Download
      * @var string
      */
     protected $data = false;
-
     /**
      * Download::$mime
      *
@@ -47,7 +53,6 @@ class Download
      * @var string
      */
     protected $mime = 'application/octet-stream';
-
     /**
      * Download::$speed
      *
@@ -57,15 +62,6 @@ class Download
      */
     protected $speed = 0;
 
-    /**
-     * Download::$partialEnabled
-     *
-     * Download file partial enabled flag.
-     *
-     * @var bool
-     */
-    public $partialEnabled = false;
-
     // ------------------------------------------------------------------------
 
     /**
@@ -73,7 +69,7 @@ class Download
      *
      * @param string|null $filePath The file to be downloaded.
      */
-    public function __construct ( $filePath = null )
+    public function __construct( $filePath = null )
     {
         if ( ! is_null( $filePath ) ) {
             $this->setFilePath( $filePath );
@@ -91,7 +87,7 @@ class Download
      *
      * @return  static
      */
-    public function setFilePath ( $filePath )
+    public function setFilePath( $filePath )
     {
         $this->filePath = $filePath;
 
@@ -109,7 +105,7 @@ class Download
      *
      * @return static
      */
-    public function setData ( $data )
+    public function setData( $data )
     {
         $this->data = $data;
 
@@ -127,7 +123,7 @@ class Download
      *
      * @return static
      */
-    public function setSpeed ( $speed = 0 )
+    public function setSpeed( $speed = 0 )
     {
         $this->speed = $speed;
 
@@ -145,7 +141,7 @@ class Download
      *
      * @return static
      */
-    public function setMime ( $mime )
+    public function setMime( $mime )
     {
         $this->mime = $mime;
 
@@ -161,7 +157,7 @@ class Download
      *
      * @return bool
      */
-    public function process ()
+    public function process()
     {
         if ( $this->filePath === '' OR $this->data === '' ) {
             return false;
@@ -193,11 +189,11 @@ class Download
          * Reference: http://digiblog.de/2011/04/19/android-and-the-download-file-headers/
          */
         if ( count( $x ) !== 1 AND
-             isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) AND
-             preg_match(
-                 '/Android\s(1|2\.[01])/',
-                 $_SERVER[ 'HTTP_USER_AGENT' ]
-             )
+            isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) AND
+            preg_match(
+                '/Android\s(1|2\.[01])/',
+                $_SERVER[ 'HTTP_USER_AGENT' ]
+            )
         ) {
             $x[ count( $x ) - 1 ] = strtoupper( $extension );
             $filename = implode( '.', $x );
@@ -210,7 +206,7 @@ class Download
 
         // Check for partial download
         if ( isset( $_SERVER[ 'HTTP_RANGE' ] ) AND
-             $this->partialEnabled === true
+            $this->partialEnabled === true
         ) {
             list ( $a, $range ) = explode( "=", $_SERVER[ 'HTTP_RANGE' ] );
             list ( $fbyte, $lbyte ) = explode( "-", $range );
@@ -249,7 +245,7 @@ class Download
 
         // Cut data for partial download
         if ( isset( $_SERVER[ 'HTTP_RANGE' ] ) AND
-             $this->partialEnabled === true
+            $this->partialEnabled === true
         ) {
             if ( $this->data === false ) {
                 fseek( $file, $range );
