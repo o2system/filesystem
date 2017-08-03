@@ -14,6 +14,7 @@ namespace O2System\Filesystem\Abstracts;
 
 // ------------------------------------------------------------------------
 
+use O2System\Filesystem\File;
 use O2System\Psr\Patterns\AbstractDataStoragePattern;
 
 /**
@@ -23,13 +24,7 @@ use O2System\Psr\Patterns\AbstractDataStoragePattern;
  */
 abstract class AbstractFile extends AbstractDataStoragePattern
 {
-    /**
-     * AbstractFile::$filePath
-     *
-     * Path to the file.
-     *
-     * @var string
-     */
+    protected $fileExtension;
     protected $filePath;
 
     // ------------------------------------------------------------------------
@@ -58,6 +53,10 @@ abstract class AbstractFile extends AbstractDataStoragePattern
     final public function createFile( $filePath )
     {
         $this->filePath = $filePath;
+
+        if( pathinfo( $this->filePath, PATHINFO_EXTENSION) === '') {
+            $this->filePath .= $this->fileExtension;
+        }
 
         return $this;
     }

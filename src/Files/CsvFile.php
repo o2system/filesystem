@@ -15,6 +15,7 @@ namespace O2System\Filesystem\Files;
 // ------------------------------------------------------------------------
 
 use O2System\Filesystem\Abstracts\AbstractFile;
+use O2System\Filesystem\File;
 
 /**
  * Class CsvFile
@@ -23,6 +24,8 @@ use O2System\Filesystem\Abstracts\AbstractFile;
  */
 class CsvFile extends AbstractFile
 {
+    protected $fileExtension = '.csv';
+
     /**
      * CsvFile::readFile
      *
@@ -67,9 +70,14 @@ class CsvFile extends AbstractFile
             ? $this->filePath
             : $filePath;
 
-        $handle = fopen( $filePath, 'wb' );
+        $handle = ( new File() )->create( $filePath );
 
-        foreach ( $this->getArrayCopy() as $list ) {
+        foreach ( $this->getArrayCopy() as $key => $value ) {
+            if ( ! is_array( $value ) ) {
+                $list = [ $key, $value ];
+            } else {
+                $list = $value;
+            }
             fputcsv( $handle, $list );
         }
 

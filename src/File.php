@@ -23,6 +23,16 @@ use O2System\Spl\Info\SplFileInfo;
  */
 class File extends SplFileInfo
 {
+    private $filePath;
+
+    public function __construct( $filePath = null )
+    {
+        if ( isset( $filePath ) ) {
+            $this->filePath = $filePath;
+            parent::__construct( $filePath );
+        }
+    }
+
     /**
      * File::setGroup
      *
@@ -297,6 +307,28 @@ class File extends SplFileInfo
 
     // ------------------------------------------------------------------------
 
+    public function create( $filePath = null, $mode = 'wb' )
+    {
+        $filePath = isset( $filePath ) ? $filePath : $this->filePath;
+        $dir = dirname( $filePath );
+
+        if ( ! is_writable( $dir ) ) {
+            if ( ! file_exists( $dir ) ) {
+                mkdir( $dir, 0777, true );
+            }
+        }
+
+        if ( ! $fp = @fopen( $filePath, $mode ) ) {
+            return false;
+        }
+
+        parent::__construct( $filePath );
+
+        return $fp;
+    }
+
+    // ------------------------------------------------------------------------
+
     /**
      * File::write
      *
@@ -307,24 +339,24 @@ class File extends SplFileInfo
      *
      * @return bool
      */
-    public function write( $contents, $mode = 'wb' )
+    public function write( $filePath, $contents, $mode = 'wb' )
     {
-        if ( ! $fp = @fopen( $this->getRealPath(), $mode ) ) {
-            return false;
-        }
+        if ( false !== ( $fp = $this->create( $filePath, $mode ) ) ) {
+            flock( $fp, LOCK_EX );
 
-        flock( $fp, LOCK_EX );
-
-        for ( $result = $written = 0, $length = strlen( $contents ); $written < $length; $written += $result ) {
-            if ( ( $result = fwrite( $fp, substr( $contents, $written ) ) ) === false ) {
-                break;
+            for ( $result = $written = 0, $length = strlen( $contents ); $written < $length; $written += $result ) {
+                if ( ( $result = fwrite( $fp, substr( $contents, $written ) ) ) === false ) {
+                    break;
+                }
             }
+
+            flock( $fp, LOCK_UN );
+            fclose( $fp );
+
+            return is_int( $result );
         }
 
-        flock( $fp, LOCK_UN );
-        fclose( $fp );
-
-        return is_int( $result );
+        return false;
     }
 
     // ------------------------------------------------------------------------

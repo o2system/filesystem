@@ -24,6 +24,8 @@ use O2System\Filesystem\File;
  */
 class XmlFile extends AbstractFile
 {
+    protected $fileExtension = '.xml';
+
     /**
      * XmlFile::readFile
      *
@@ -67,10 +69,11 @@ class XmlFile extends AbstractFile
         if ( $this->count() ) {
             $root = '<' . pathinfo( $filePath, PATHINFO_FILENAME ) . '/>';
 
+            $contents = $this->getArrayCopy();
             $xml = new \SimpleXMLElement( $root );
-            array_walk_recursive( $this->getArrayCopy(), [ $xml, 'addChild' ] );
+            array_walk_recursive( $contents, [ &$xml, 'addChild' ] );
 
-            return ( new File( $filePath ) )->write( $xml->asXML() );
+            return ( new File() )->write( $filePath, $xml->asXML() );
         }
     }
 }

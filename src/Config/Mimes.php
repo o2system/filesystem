@@ -15,7 +15,7 @@
 | MIME TYPES
 | -------------------------------------------------------------------
 | This file contains an array of mime types. It is used by the
-| Upload class to help identify allowed file types.
+| Uploader class to help identify allowed file types.
 |
 */
 return [

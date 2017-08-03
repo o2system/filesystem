@@ -24,6 +24,8 @@ use O2System\Filesystem\File;
  */
 class JsonFile extends AbstractFile
 {
+    protected $fileExtension = '.json';
+
     /**
      * JsonFile::readFile
      *
@@ -66,7 +68,7 @@ class JsonFile extends AbstractFile
             : $filePath;
 
         if ( $this->count() ) {
-            return ( new File( $filePath ) )->write( json_encode( $this->getArrayCopy(), JSON_PRETTY_PRINT ) );
+            return ( new File() )->write( $filePath, json_encode( $this->getArrayCopy(), JSON_PRETTY_PRINT ) );
         }
     }
 }

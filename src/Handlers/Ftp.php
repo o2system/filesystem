@@ -12,6 +12,8 @@
 
 namespace O2System\Filesystem\Handlers;
 
+// ------------------------------------------------------------------------
+
 use O2System\Spl\Exceptions\RuntimeException;
 
 /**
@@ -532,7 +534,7 @@ class Ftp
     /**
      * Ftp::upload
      *
-     * Upload a file to the ftp server.
+     * Uploader a file to the ftp server.
      *
      * @param    string $localFilePath  Local source file path.
      * @param    string $remoteFilePath Remote destination file path.

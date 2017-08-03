@@ -24,6 +24,8 @@ use O2System\Filesystem\File;
  */
 class IniFile extends AbstractFile
 {
+    protected $fileExtension = '.ini';
+
     /**
      * IniFile::readFile
      *
@@ -122,6 +124,6 @@ class IniFile extends AbstractFile
             }
         }
 
-        return ( new File( $filePath ) )->write( $content );
+        return ( new File() )->write( $filePath, $content );
     }
 }
