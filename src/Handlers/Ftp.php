@@ -28,7 +28,7 @@ class Ftp
      *
      * @var    bool
      */
-    public $isPassiveMode = true;
+    public $passiveMode = true;
     /**
      * Debug flag
      *
@@ -36,7 +36,7 @@ class Ftp
      *
      * @var    bool
      */
-    public $isDebugMode = false;
+    public $debugMode = false;
     /**
      * Ftp::$config
      *
@@ -52,7 +52,7 @@ class Ftp
      *
      * @var    resource
      */
-    protected $connId;
+    protected $handle;
 
     // --------------------------------------------------------------------
 
@@ -84,16 +84,16 @@ class Ftp
         // Prep the hostname
         $config[ 'hostname' ] = preg_replace( '|.+?://|', '', $config[ 'hostname' ] );
 
-        if ( false === ( $this->connId = @ftp_connect( $config[ 'hostname' ], $config[ 'port' ] ) ) ) {
-            if ( $this->isDebugMode === true ) {
+        if ( false === ( $this->handle = @ftp_connect( $config[ 'hostname' ], $config[ 'port' ] ) ) ) {
+            if ( $this->debugMode === true ) {
                 throw new RuntimeException( 'E_FTP_UNABLE_TO_CONNECT' );
             }
 
             return false;
         }
 
-        if ( false !== ( @ftp_login( $this->connId, $config[ 'username' ], $config[ 'password' ] ) ) ) {
-            if ( $this->isDebugMode === true ) {
+        if ( false !== ( @ftp_login( $this->handle, $config[ 'username' ], $config[ 'password' ] ) ) ) {
+            if ( $this->debugMode === true ) {
                 throw new RuntimeException( 'E_FTP_UNABLE_TO_LOGIN' );
             }
 
@@ -101,8 +101,8 @@ class Ftp
         }
 
         // Set passive mode if needed
-        if ( $this->isPassiveMode === true ) {
-            ftp_pasv( $this->connId, true );
+        if ( $this->passiveMode === true ) {
+            ftp_pasv( $this->handle, true );
         }
 
         $this->config = $config;
@@ -139,10 +139,10 @@ class Ftp
 
         $mode = ( $mode === 'ascii' ) ? FTP_ASCII : FTP_BINARY;
 
-        $result = @ftp_get( $this->connId, $localFilePath, $remoteFilePath, $mode );
+        $result = @ftp_get( $this->handle, $localFilePath, $remoteFilePath, $mode );
 
         if ( $result === false ) {
-            if ( $this->isDebugMode === true ) {
+            if ( $this->debugMode === true ) {
                 throw new RuntimeException( 'E_FTP_UNABLE_TO_DOWNLOAD' );
             }
 
@@ -164,8 +164,8 @@ class Ftp
      */
     protected function isConnected()
     {
-        if ( ! is_resource( $this->connId ) ) {
-            if ( $this->isDebugMode === true ) {
+        if ( ! is_resource( $this->handle ) ) {
+            if ( $this->debugMode === true ) {
                 throw new RuntimeException( 'E_FTP_NO_CONNECTION' );
             }
 
@@ -234,10 +234,10 @@ class Ftp
             return false;
         }
 
-        $result = @ftp_rename( $this->connId, $oldFilename, $newFilename );
+        $result = @ftp_rename( $this->handle, $oldFilename, $newFilename );
 
         if ( $result === false ) {
-            if ( $this->isDebugMode === true ) {
+            if ( $this->debugMode === true ) {
                 throw new RuntimeException( 'FTP_UNABLE_TO_RENAME' );
             }
 
@@ -266,10 +266,10 @@ class Ftp
             return false;
         }
 
-        $result = @ftp_rename( $this->connId, $oldRemoteFilePath, $newRemoteFilePath );
+        $result = @ftp_rename( $this->handle, $oldRemoteFilePath, $newRemoteFilePath );
 
         if ( $result === false ) {
-            if ( $this->isDebugMode === true ) {
+            if ( $this->debugMode === true ) {
                 throw new RuntimeException( 'FTP_UNABLE_TO_RENAME' );
             }
 
@@ -297,10 +297,10 @@ class Ftp
             return false;
         }
 
-        $result = @ftp_delete( $this->connId, $filePath );
+        $result = @ftp_delete( $this->handle, $filePath );
 
         if ( $result === false ) {
-            if ( $this->isDebugMode === true ) {
+            if ( $this->debugMode === true ) {
                 throw new RuntimeException( 'E_FTP_UNABLE_TO_DELETE' );
             }
 
@@ -337,14 +337,14 @@ class Ftp
             for ( $i = 0, $c = count( $list ); $i < $c; $i++ ) {
                 // If we can't delete the item it's probaly a directory,
                 // so we'll recursively call delete_dir()
-                if ( ! preg_match( '#/\.\.?$#', $list[ $i ] ) && ! @ftp_delete( $this->connId, $list[ $i ] ) ) {
+                if ( ! preg_match( '#/\.\.?$#', $list[ $i ] ) && ! @ftp_delete( $this->handle, $list[ $i ] ) ) {
                     $this->deleteDir( $list[ $i ] );
                 }
             }
         }
 
-        if ( @ftp_rmdir( $this->connId, $remotePath ) === false ) {
-            if ( $this->isDebugMode === true ) {
+        if ( @ftp_rmdir( $this->handle, $remotePath ) === false ) {
+            if ( $this->debugMode === true ) {
                 throw new RuntimeException( 'E_FTP_UNABLE_TO_DELETE' );
             }
 
@@ -369,7 +369,7 @@ class Ftp
     public function getFiles( $remotePath = '.' )
     {
         return $this->isConnected()
-            ? ftp_nlist( $this->connId, $remotePath )
+            ? ftp_nlist( $this->handle, $remotePath )
             : false;
     }
 
@@ -449,10 +449,10 @@ class Ftp
             return false;
         }
 
-        $result = @ftp_chdir( $this->connId, $remotePath );
+        $result = @ftp_chdir( $this->handle, $remotePath );
 
         if ( $result === false ) {
-            if ( $this->isDebugMode === true AND $suppressDebug === false ) {
+            if ( $this->debugMode === true AND $suppressDebug === false ) {
                 throw new RuntimeException( 'E_FTP_UNABLE_TO_CHANGE_DIRECTORY' );
             }
 
@@ -481,10 +481,10 @@ class Ftp
             return false;
         }
 
-        $result = @ftp_mkdir( $this->connId, $remotePath );
+        $result = @ftp_mkdir( $this->handle, $remotePath );
 
         if ( $result === false ) {
-            if ( $this->isDebugMode === true ) {
+            if ( $this->debugMode === true ) {
                 throw new RuntimeException( 'E_FTP_UNABLE_TO_MAKE_DIRECTORY' );
             }
 
@@ -518,8 +518,8 @@ class Ftp
             return false;
         }
 
-        if ( @ftp_chmod( $this->connId, $mode, $remotePath ) === false ) {
-            if ( $this->isDebugMode === true ) {
+        if ( @ftp_chmod( $this->handle, $mode, $remotePath ) === false ) {
+            if ( $this->debugMode === true ) {
                 throw new RuntimeException( 'E_FTP_UNABLE_TO_CHMOD' );
             }
 
@@ -560,10 +560,10 @@ class Ftp
 
             $mode = ( $mode === 'ascii' ) ? FTP_ASCII : FTP_BINARY;
 
-            $result = @ftp_put( $this->connId, $remoteFilePath, $localFilePath, $mode );
+            $result = @ftp_put( $this->handle, $remoteFilePath, $localFilePath, $mode );
 
             if ( $result === false ) {
-                if ( $this->isDebugMode === true ) {
+                if ( $this->debugMode === true ) {
                     throw new RuntimeException( 'E_FTP_UNABLE_TO_UPLOAD' );
                 }
 
@@ -594,7 +594,7 @@ class Ftp
     public function close()
     {
         return $this->isConnected()
-            ? @ftp_close( $this->connId )
+            ? @ftp_close( $this->handle )
             : false;
     }
 }

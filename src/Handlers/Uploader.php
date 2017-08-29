@@ -14,6 +14,7 @@ namespace O2System\Filesystem\Handlers;
 
 // ------------------------------------------------------------------------
 
+use O2System\Kernel\Http\Message\UploadFile;
 use O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException;
 
 /**
@@ -69,24 +70,6 @@ class Uploader
     protected $allowedFileSize = [
         'min' => 0,
         'max' => 0,
-    ];
-
-    /**
-     * Uploader::$allowedImageSize
-     *
-     * Allowed uploaded image size.
-     *
-     * @var array
-     */
-    protected $allowedImageSize = [
-        'width'  => [
-            'min' => 0,
-            'max' => 0,
-        ],
-        'height' => [
-            'min' => 0,
-            'max' => 0,
-        ],
     ];
 
     /**
@@ -336,6 +319,55 @@ class Uploader
 
     // --------------------------------------------------------------------------------------
 
+    protected function validate( UploadFile $file )
+    {
+        /* Validate extension */
+        if ( is_array( $this->allowedExtensions ) && count( $this->allowedExtensions ) ) {
+            if ( ! in_array( $file->getExtension(), $this->allowedExtensions ) ) {
+                $this->errors[] = language()->getLine(
+                    'E_UPLOAD_ALLOWED_EXTENSIONS',
+                    [ $this->allowedExtensions, $file->getExtension() ]
+                );
+            }
+        }
+
+        /* Validate mime */
+        if ( is_array( $this->allowedMimes ) && count( $this->allowedExtensions ) ) {
+            if ( ! in_array( $file->getFileMime(), $this->allowedMimes ) ) {
+                $this->errors[] = language()->getLine(
+                    'E_UPLOAD_ALLOWED_MIMES',
+                    [ $this->allowedMimes, $file->getFileMime() ]
+                );
+            }
+        }
+
+        /* Validate min size */
+        if ( $this->allowedFileSize[ 'min' ] > 0 ) {
+            if ( $file->getSize() < $this->allowedFileSize[ 'min' ] ) {
+                $this->errors[] = language()->getLine(
+                    'E_UPLOADED_ALLOWED_MIN_FILESIZE',
+                    [ $this->allowedFileSize[ 'min' ], $file->getSize() ]
+                );
+            }
+        }
+
+        /* Validate max size */
+        if ( $this->allowedFileSize[ 'min' ] > 0 ) {
+            if ( $file->getSize() > $this->allowedFileSize[ 'max' ] ) {
+                $this->errors[] = language()->getLine(
+                    'E_UPLOADED_ALLOWED_MAX_FILESIZE',
+                    [ $this->allowedFileSize[ 'max' ], $file->getSize() ]
+                );
+            }
+        }
+
+        if ( count( $this->errors ) == 0 ) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Uploader::process
      *
@@ -359,57 +391,22 @@ class Uploader
                         'E_UPLOAD_MAXIMUM_INCREMENT_FILENAME',
                         [ $this->maxIncrementFilename ]
                     );
-                }
 
-                $targetPath = $this->path;
-                $filename = $this->targetFilename;
+                    return false;
+                    break;
+                } else {
+                    $targetPath = $this->path;
+                    $filename = $this->targetFilename;
 
-                /* Validate extension */
-                if ( is_array( $this->allowedExtensions ) ) {
-                    if ( ! in_array( $file->getExtension(), $this->allowedExtensions ) ) {
-                        $this->errors[] = language()->getLine(
-                            'E_UPLOAD_ALLOWED_EXTENSIONS',
-                            [ $this->allowedExtensions, $file->getExtension() ]
-                        );
+                    if( $this->validate( $file ) ) {
+                        if ( ! is_file( $targetPath . $filename . '-' . $i . '.' . $file->getExtension() ) ) {
+                            $filename = $filename . '-' . $i . '.' . $file->getExtension();
+                            $file->moveTo( $targetPath . $filename );
+
+                            $this->errors[] = $file->getError();
+                            $i = $i + 1;
+                        }
                     }
-                }
-
-                /* Validate mime */
-                if ( is_array( $this->allowedMimes ) ) {
-                    if ( ! in_array( $file->getFileMime(), $this->allowedMimes ) ) {
-                        $this->errors[] = language()->getLine(
-                            'E_UPLOAD_ALLOWED_MIMES',
-                            [ $this->allowedMimes, $file->getFileMime() ]
-                        );
-                    }
-                }
-
-                /* Validate min size */
-                if ( $this->allowedFileSize[ 'min' ] > 0 ) {
-                    if ( $file->getFileSize() < $this->allowedFileSize[ 'min' ] ) {
-                        $this->errors[] = language()->getLine(
-                            'E_UPLOADED_ALLOWED_MIN_FILESIZE',
-                            [ $this->allowedFileSize[ 'min' ], $file->getFileSize() ]
-                        );
-                    }
-                }
-
-                /* Validate max size */
-                if ( $this->allowedFileSize[ 'min' ] > 0 ) {
-                    if ( $file->getFileSize() > $this->allowedFileSize[ 'max' ] ) {
-                        $this->errors[] = language()->getLine(
-                            'E_UPLOADED_ALLOWED_MAX_FILESIZE',
-                            [ $this->allowedFileSize[ 'max' ], $file->getFileSize() ]
-                        );
-                    }
-                }
-
-                if ( ! is_file( $targetPath . $filename . '-' . $i . '.' . $file->getExtension() ) ) {
-                    $filename = $filename . '-' . $i . '.' . $file->getExtension();
-                    $file->moveTo( $targetPath . $filename );
-
-                    $this->errors[] = $file->getError();
-                    $i = $i + 1;
                 }
             }
 

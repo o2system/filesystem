@@ -1,7 +1,7 @@
 # O2System Filesystem
 Open Source PHP Convenience libraries for reading, writing and appending to files and directories, which is build for working more powerful with O2System Framework, but also can be used for integrated with others as standalone version with limited features.
 
-### Composer Instalation
+### Composer Installation
 The best way to install O2System Filesystem is to use [Composer](https://getcomposer.org)
 ```
 composer require o2system/filesystem --prefer-dist dev-master

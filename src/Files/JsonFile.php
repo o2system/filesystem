@@ -14,7 +14,7 @@ namespace O2System\Filesystem\Files;
 
 // ------------------------------------------------------------------------
 
-use O2System\Filesystem\Abstracts\AbstractFile;
+use O2System\Filesystem\Files\Abstracts\AbstractFile;
 use O2System\Filesystem\File;
 
 /**
