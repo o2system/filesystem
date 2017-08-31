@@ -1,10 +1,24 @@
 # O2System Filesystem
-Open Source PHP Convenience libraries for reading, writing and appending to files and directories, which is build for working more powerful with O2System Framework, but also can be used for integrated with others as standalone version with limited features.
+O2System Filesystem is an Open Source PHP Convenience libraries for reading, writing and appending to files and directories, which is build for working more powerful with O2System Framework, but also can be used for integrated with others as standalone version with limited features.
+
+### Supported Files Processor and Generator
+- CSV File
+- INI File
+- JSON File
+- XML File
+- Zip File
+
+### Features Handlers
+- File Handler and Manipulation
+- Directory Handler and Manipulation
+- Uploaders
+- Downloaders with speed limit and resumeable support
+- File Transfer Protocol (FTP)
 
 ### Composer Installation
 The best way to install O2System Filesystem is to use [Composer](https://getcomposer.org)
 ```
-composer require o2system/filesystem --prefer-dist dev-master
+composer require o2system/filesystem
 ```
 > Packagist: [https://packagist.org/packages/o2system/filesystem](https://packagist.org/packages/o2system/filesystem)
 
