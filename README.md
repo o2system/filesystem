@@ -1,5 +1,5 @@
 # O2System Filesystem
-O2System Filesystem is an Open Source PHP Convenience libraries for reading, writing and appending to files and directories, which is build for working more powerful with O2System Framework, but also can be used for integrated with others as standalone version with limited features.
+O2System Filesystem is an Open Source PHP Convenience Library for reading, writing and appending data from and into files and directories, which is built for working more powerfully with O2System Framework, but it also can be used with other frameworks as a standalone version with limited features.
 
 ### Supported Files Processor and Generator
 - CSV File
