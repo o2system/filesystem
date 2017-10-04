@@ -197,7 +197,7 @@ class Directory extends SplDirectoryInfo
         foreach ( $directoryIterator as $directoryFile ) {
             if ( $directoryFile->isFile() ) {
                 if ( $extension === '*' ) {
-                    array_push( $result, $filePath );
+                    array_push( $result, $directoryFile->getFilename() );
                 } elseif ( preg_match( '/\.' . $extension . '$/ui', $directoryFile->getFilename() ) ) {
                     if ( ! in_array( $directoryFile->getRealPath(), $result ) ) {
                         array_push( $result, $directoryFile->getRealPath() );

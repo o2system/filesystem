@@ -51,7 +51,9 @@ class Downloader
         $this->mode = $mode;
 
         // disables apache compression mod_deflate || mod_gzip
-        @apache_setenv( 'no-gzip', 1 );
+        if( function_exists( 'apache_setenv' ) ) {
+            @apache_setenv( 'no-gzip', 1 );
+        }
 
         // disable php cpmpression
         @ini_set( 'zlib.output_compression', 'Off' );
@@ -102,7 +104,7 @@ class Downloader
         if ( isset( $_SERVER[ 'HTTP_RANGE' ] ) || isset( $HTTP_SERVER_VARS[ 'HTTP_RANGE' ] ) ) {
             $this->partialRequest = true;
             $http_range = isset( $_SERVER[ 'HTTP_RANGE' ] ) ? $_SERVER[ 'HTTP_RANGE' ] : $HTTP_SERVER_VARS[ 'HTTP_RANGE' ];
-            if ( stripos( 'bytes' ) === false ) {
+            if ( stripos( $http_range, 'bytes' ) === false ) {
                 output()
                     ->withStatus( 416, 'Requested Range Not Satisfiable' )
                     ->send( 'Requested Range Not Satisfiable' );

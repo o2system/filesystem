@@ -61,7 +61,9 @@ class Ftp
      */
     public function __construct()
     {
-        language()->loadFile( 'ftp' );
+        language()
+            ->addFilePath( str_replace( 'Handlers', '', __DIR__ ) . DIRECTORY_SEPARATOR )
+            ->loadFile( 'ftp' );
     }
 
     // --------------------------------------------------------------------
@@ -86,7 +88,7 @@ class Ftp
 
         if ( false === ( $this->handle = @ftp_connect( $config[ 'hostname' ], $config[ 'port' ] ) ) ) {
             if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'E_FTP_UNABLE_TO_CONNECT' );
+                throw new RuntimeException( 'FTP_E_UNABLE_TO_CONNECT' );
             }
 
             return false;
@@ -94,7 +96,7 @@ class Ftp
 
         if ( false !== ( @ftp_login( $this->handle, $config[ 'username' ], $config[ 'password' ] ) ) ) {
             if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'E_FTP_UNABLE_TO_LOGIN' );
+                throw new RuntimeException( 'FTP_E_UNABLE_TO_LOGIN' );
             }
 
             return false;
@@ -143,7 +145,7 @@ class Ftp
 
         if ( $result === false ) {
             if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'E_FTP_UNABLE_TO_DOWNLOAD' );
+                throw new RuntimeException( 'FTP_E_UNABLE_TO_DOWNLOAD' );
             }
 
             return false;
@@ -166,7 +168,7 @@ class Ftp
     {
         if ( ! is_resource( $this->handle ) ) {
             if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'E_FTP_NO_CONNECTION' );
+                throw new RuntimeException( 'FTP_E_NO_CONNECTION' );
             }
 
             return false;
@@ -270,7 +272,7 @@ class Ftp
 
         if ( $result === false ) {
             if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'FTP_UNABLE_TO_RENAME' );
+                throw new RuntimeException( 'FTP_UNABLE_TO_MOVE' );
             }
 
             return false;
@@ -301,7 +303,7 @@ class Ftp
 
         if ( $result === false ) {
             if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'E_FTP_UNABLE_TO_DELETE' );
+                throw new RuntimeException( 'FTP_E_UNABLE_TO_DELETE' );
             }
 
             return false;
@@ -345,7 +347,7 @@ class Ftp
 
         if ( @ftp_rmdir( $this->handle, $remotePath ) === false ) {
             if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'E_FTP_UNABLE_TO_DELETE' );
+                throw new RuntimeException( 'FTP_E_UNABLE_TO_DELETE_DIRECTORY' );
             }
 
             return false;
@@ -363,7 +365,7 @@ class Ftp
      *
      * @param    string $remotePath Path to the remote directory.
      *
-     * @return  array Returns array of files list or FALSE on failure.
+     * @return  array|bool Returns array of files list or FALSE on failure.
      * @throws  RuntimeException
      */
     public function getFiles( $remotePath = '.' )
@@ -453,7 +455,7 @@ class Ftp
 
         if ( $result === false ) {
             if ( $this->debugMode === true AND $suppressDebug === false ) {
-                throw new RuntimeException( 'E_FTP_UNABLE_TO_CHANGE_DIRECTORY' );
+                throw new RuntimeException( 'FTP_E_UNABLE_TO_CHANGE_DIRECTORY' );
             }
 
             return false;
@@ -485,7 +487,7 @@ class Ftp
 
         if ( $result === false ) {
             if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'E_FTP_UNABLE_TO_MAKE_DIRECTORY' );
+                throw new RuntimeException( 'FTP_E_UNABLE_TO_MAKE_DIRECTORY' );
             }
 
             return false;
@@ -520,7 +522,7 @@ class Ftp
 
         if ( @ftp_chmod( $this->handle, $mode, $remotePath ) === false ) {
             if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'E_FTP_UNABLE_TO_CHMOD' );
+                throw new RuntimeException( 'FTP_E_UNABLE_TO_CHMOD' );
             }
 
             return false;
@@ -564,7 +566,7 @@ class Ftp
 
             if ( $result === false ) {
                 if ( $this->debugMode === true ) {
-                    throw new RuntimeException( 'E_FTP_UNABLE_TO_UPLOAD' );
+                    throw new RuntimeException( 'FTP_E_UNABLE_TO_UPLOAD' );
                 }
 
                 return false;

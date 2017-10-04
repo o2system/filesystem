@@ -102,8 +102,12 @@ class Uploader
      */
     public function __construct( array $config = [] )
     {
+        language()
+            ->addFilePath( str_replace( 'Handlers', '', __DIR__ ) . DIRECTORY_SEPARATOR )
+            ->loadFile( 'uploader' );
+        
         if ( ! extension_loaded( 'fileinfo' ) ) {
-            throw new BadDependencyCallException( 'E_UPLOAD_FINFO_EXTENSION' );
+            throw new BadDependencyCallException( 'UPLOADER_E_FINFO_EXTENSION' );
         }
 
         if ( isset( $config[ 'path' ] ) ) {
@@ -325,7 +329,7 @@ class Uploader
         if ( is_array( $this->allowedExtensions ) && count( $this->allowedExtensions ) ) {
             if ( ! in_array( $file->getExtension(), $this->allowedExtensions ) ) {
                 $this->errors[] = language()->getLine(
-                    'E_UPLOAD_ALLOWED_EXTENSIONS',
+                    'UPLOADER_E_ALLOWED_EXTENSIONS',
                     [ $this->allowedExtensions, $file->getExtension() ]
                 );
             }
@@ -335,7 +339,7 @@ class Uploader
         if ( is_array( $this->allowedMimes ) && count( $this->allowedExtensions ) ) {
             if ( ! in_array( $file->getFileMime(), $this->allowedMimes ) ) {
                 $this->errors[] = language()->getLine(
-                    'E_UPLOAD_ALLOWED_MIMES',
+                    'UPLOADER_E_ALLOWED_MIMES',
                     [ $this->allowedMimes, $file->getFileMime() ]
                 );
             }
@@ -345,7 +349,7 @@ class Uploader
         if ( $this->allowedFileSize[ 'min' ] > 0 ) {
             if ( $file->getSize() < $this->allowedFileSize[ 'min' ] ) {
                 $this->errors[] = language()->getLine(
-                    'E_UPLOADED_ALLOWED_MIN_FILESIZE',
+                    'UPLOADER_E_ALLOWED_MIN_FILESIZE',
                     [ $this->allowedFileSize[ 'min' ], $file->getSize() ]
                 );
             }
@@ -355,7 +359,7 @@ class Uploader
         if ( $this->allowedFileSize[ 'min' ] > 0 ) {
             if ( $file->getSize() > $this->allowedFileSize[ 'max' ] ) {
                 $this->errors[] = language()->getLine(
-                    'E_UPLOADED_ALLOWED_MAX_FILESIZE',
+                    'UPLOADER_E_ALLOWED_MAX_FILESIZE',
                     [ $this->allowedFileSize[ 'max' ], $file->getSize() ]
                 );
             }
@@ -388,7 +392,7 @@ class Uploader
             foreach ( $uploadFiles as $file ) {
                 if ( $i > $this->maxIncrementFilename ) {
                     $this->errors[] = language()->getLine(
-                        'E_UPLOAD_MAXIMUM_INCREMENT_FILENAME',
+                        'UPLOADER_E_MAXIMUM_INCREMENT_FILENAME',
                         [ $this->maxIncrementFilename ]
                     );
 
