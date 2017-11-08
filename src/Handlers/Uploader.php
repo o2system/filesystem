@@ -330,7 +330,7 @@ class Uploader
             if ( ! in_array( $file->getExtension(), $this->allowedExtensions ) ) {
                 $this->errors[] = language()->getLine(
                     'UPLOADER_E_ALLOWED_EXTENSIONS',
-                    [ $this->allowedExtensions, $file->getExtension() ]
+                    [ implode(',', $this->allowedExtensions ), $file->getExtension() ]
                 );
             }
         }
@@ -340,7 +340,7 @@ class Uploader
             if ( ! in_array( $file->getFileMime(), $this->allowedMimes ) ) {
                 $this->errors[] = language()->getLine(
                     'UPLOADER_E_ALLOWED_MIMES',
-                    [ $this->allowedMimes, $file->getFileMime() ]
+                    [ implode( ',', $this->allowedMimes ), $file->getFileMime() ]
                 );
             }
         }
