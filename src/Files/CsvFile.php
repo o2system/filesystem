@@ -24,8 +24,15 @@ use O2System\Filesystem\File;
  */
 class CsvFile extends AbstractFile
 {
+    /**
+     * CsvFile::$fileExtension
+     * 
+     * @var string
+     */
     protected $fileExtension = '.csv';
 
+    // ------------------------------------------------------------------------
+    
     /**
      * CsvFile::readFile
      *

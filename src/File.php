@@ -23,8 +23,21 @@ use O2System\Spl\Info\SplFileInfo;
  */
 class File extends SplFileInfo
 {
+    /**
+     * File::$filePath
+     *
+     * Path of File
+     * @var String
+     */
     private $filePath;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * File::__construct
+     * 
+     * @param string|null $filePath
+     */
     public function __construct( $filePath = null )
     {
         if ( isset( $filePath ) ) {
@@ -32,6 +45,8 @@ class File extends SplFileInfo
             parent::__construct( $filePath );
         }
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * File::setGroup
@@ -307,6 +322,15 @@ class File extends SplFileInfo
 
     // ------------------------------------------------------------------------
 
+    /**
+     * File::create
+     *
+     * Create a File
+     * 
+     * @param  string|null $filePath
+     * @param  string $mode
+     * @return string
+     */
     public function create( $filePath = null, $mode = 'wb' )
     {
         $filePath = isset( $filePath ) ? $filePath : $this->filePath;

@@ -211,6 +211,14 @@ class Directory extends SplDirectoryInfo
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Directory::findFilesByFilename
+     *
+     * Find Files By Filename
+     * 
+     * @param  string $filename
+     * @return array
+     */
     public function findFilesByFilename( $filename )
     {
         $directoryIterator = new \RecursiveIteratorIterator(

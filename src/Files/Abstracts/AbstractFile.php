@@ -24,7 +24,18 @@ use O2System\Psr\Patterns\AbstractDataStoragePattern;
  */
 abstract class AbstractFile extends AbstractDataStoragePattern
 {
+    /**
+     * AbstractFile::$fileExtension
+     * 
+     * @var string
+     */
     protected $fileExtension;
+
+    /**
+     * AbstractFile::$filePath
+     * 
+     * @var string
+     */
     protected $filePath;
 
     // ------------------------------------------------------------------------
