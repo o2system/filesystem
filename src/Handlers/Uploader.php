@@ -103,8 +103,8 @@ class Uploader
     public function __construct( array $config = [] )
     {
         language()
-            ->addFilePath( str_replace( 'Handlers', '', __DIR__ ) . DIRECTORY_SEPARATOR )
-            ->loadFile( 'uploader' );
+        ->addFilePath( str_replace( 'Handlers', '', __DIR__ ) . DIRECTORY_SEPARATOR )
+        ->loadFile( 'uploader' );
         
         if ( ! extension_loaded( 'fileinfo' ) ) {
             throw new BadDependencyCallException( 'UPLOADER_E_FINFO_EXTENSION' );

@@ -41,19 +41,23 @@ class CsvFile extends AbstractFile
      *
      * @return mixed
      */
-    public function readFile( $filePath, array $options = [] )
+    public function readFile( $filePath = null, array $options = [] )
     {
         $filePath = empty( $filePath )
             ? $this->filePath
             : $filePath;
 
+        $defaultOptions = [
+            'length' => 1000,
+            'delimiter' => ','
+        ];
+
+        $options = array_merge($defaultOptions, $options);
 
         $result = [];
 
-        if ( is_file( $filePath ) ) {
-            $handle = fopen( $filePath, 'r' );
-
-            while ( ! feof( $handle ) ) {
+        if ( false !== ( $handle = fopen( $filePath, 'r' ) ) ) {
+            while ( false !== ($data = fgetcsv($handle, $options['length'], $options['delimiter']) ) ) {
                 $result[] = fgetcsv( $handle );
             }
         }
