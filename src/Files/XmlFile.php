@@ -16,6 +16,8 @@ namespace O2System\Filesystem\Files;
 
 use O2System\Filesystem\Files\Abstracts\AbstractFile;
 use O2System\Filesystem\File;
+use O2System\Spl\Datastructures\SplArrayObject;
+use O2System\Spl\Iterators\ArrayIterator;
 
 /**
  * Class XmlFile
@@ -34,17 +36,26 @@ class XmlFile extends AbstractFile
      *
      * @return mixed
      */
-    public function readFile( $filePath, array $options = [] )
+    public function readFile( $filePath = null, array $options = [] )
     {
         $filePath = empty( $filePath )
             ? $this->filePath
             : $filePath;
 
+        $result = new ArrayIterator();
 
-        $result = [];
+        if ( false !== ( $xml = simplexml_load_file( $filePath ) ) ) {
+            $contents = json_decode( json_encode( $xml ), true ); // force to array conversion
 
-        if ( false !== ( $xml = simplexml_load_string( ( new File( $filePath ) )->read() ) ) ) {
-            $result = json_decode( json_encode( $result ), true ); // force to array conversion
+            if(count($contents) == 1) {
+                $contents = reset($contents);
+            }
+
+            if ( json_last_error() === JSON_ERROR_NONE ) {
+                foreach($contents as $content) {
+                    $result[] = new SplArrayObject( $content );
+                }
+            }
         }
 
         return $result;

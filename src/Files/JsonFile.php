@@ -16,6 +16,8 @@ namespace O2System\Filesystem\Files;
 
 use O2System\Filesystem\Files\Abstracts\AbstractFile;
 use O2System\Filesystem\File;
+use O2System\Spl\Datastructures\SplArrayObject;
+use O2System\Spl\Iterators\ArrayIterator;
 
 /**
  * Class JsonFile
@@ -34,17 +36,19 @@ class JsonFile extends AbstractFile
      *
      * @return mixed
      */
-    public function readFile( $filePath, array $options = [] )
+    public function readFile( $filePath = null, array $options = [] )
     {
         $filePath = empty( $filePath )
             ? $this->filePath
             : $filePath;
 
-        $result = [];
+        $result = new ArrayIterator();
 
-        if ( false !== ( $json = json_decode( ( new File( $filePath ) )->read() ) ) ) {
+        if ( false !== ( $contents = json_decode( file_get_contents( $filePath ), true ) ) ) {
             if ( json_last_error() === JSON_ERROR_NONE ) {
-                $result = $json;
+                foreach($contents as $content) {
+                    $result[] = new SplArrayObject( $content );
+                }
             }
         }
 
