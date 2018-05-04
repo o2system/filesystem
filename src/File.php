@@ -329,7 +329,7 @@ class File extends SplFileInfo
      * 
      * @param  string|null $filePath
      * @param  string $mode
-     * @return string
+     * @return resource
      */
     public function create( $filePath = null, $mode = 'wb' )
     {
