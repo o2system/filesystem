@@ -280,34 +280,6 @@ class Uploader
     // --------------------------------------------------------------------------------------
 
     /**
-     * Uploader::setTargetFilename
-     *
-     * Sets target filename.
-     *
-     * @param string $filename           The target filename.
-     * @param string $conversionFunction Conversion function name, by default it's using dash inflector function.
-     *
-     * @return static
-     */
-    public function setTargetFilename($filename, $conversionFunction = 'dash')
-    {
-        $this->targetFilename = call_user_func_array(
-            $conversionFunction,
-            [
-                strtolower(
-                    trim(
-                        pathinfo($filename, PATHINFO_FILENAME)
-                    )
-                ),
-            ]
-        );
-
-        return $this;
-    }
-
-    // --------------------------------------------------------------------------------------
-
-    /**
      * Uploader::setMaxIncrementFilename
      *
      * @param int $increment Maximum increment counter.
@@ -322,55 +294,6 @@ class Uploader
     }
 
     // --------------------------------------------------------------------------------------
-
-    protected function validate(UploadFile $file)
-    {
-        /* Validate extension */
-        if (is_array($this->allowedExtensions) && count($this->allowedExtensions)) {
-            if ( ! in_array('.' . $file->getExtension(), $this->allowedExtensions)) {
-                $this->errors[] = language()->getLine(
-                    'UPLOADER_E_ALLOWED_EXTENSIONS',
-                    [implode(',', $this->allowedExtensions), $file->getExtension()]
-                );
-            }
-        }
-
-        /* Validate mime */
-        if (is_array($this->allowedMimes) && count($this->allowedExtensions)) {
-            if ( ! in_array($file->getFileMime(), $this->allowedMimes)) {
-                $this->errors[] = language()->getLine(
-                    'UPLOADER_E_ALLOWED_MIMES',
-                    [implode(',', $this->allowedMimes), $file->getFileMime()]
-                );
-            }
-        }
-
-        /* Validate min size */
-        if ($this->allowedFileSize[ 'min' ] > 0) {
-            if ($file->getSize() < $this->allowedFileSize[ 'min' ]) {
-                $this->errors[] = language()->getLine(
-                    'UPLOADER_E_ALLOWED_MIN_FILESIZE',
-                    [$this->allowedFileSize[ 'min' ], $file->getSize()]
-                );
-            }
-        }
-
-        /* Validate max size */
-        if ($this->allowedFileSize[ 'min' ] > 0) {
-            if ($file->getSize() > $this->allowedFileSize[ 'max' ]) {
-                $this->errors[] = language()->getLine(
-                    'UPLOADER_E_ALLOWED_MAX_FILESIZE',
-                    [$this->allowedFileSize[ 'max' ], $file->getSize()]
-                );
-            }
-        }
-
-        if (count($this->errors) == 0) {
-            return true;
-        }
-
-        return false;
-    }
 
     /**
      * Uploader::process
@@ -440,6 +363,83 @@ class Uploader
             if (count($this->errors) == 0) {
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    // --------------------------------------------------------------------------------------
+
+    /**
+     * Uploader::setTargetFilename
+     *
+     * Sets target filename.
+     *
+     * @param string $filename           The target filename.
+     * @param string $conversionFunction Conversion function name, by default it's using dash inflector function.
+     *
+     * @return static
+     */
+    public function setTargetFilename($filename, $conversionFunction = 'dash')
+    {
+        $this->targetFilename = call_user_func_array(
+            $conversionFunction,
+            [
+                strtolower(
+                    trim(
+                        pathinfo($filename, PATHINFO_FILENAME)
+                    )
+                ),
+            ]
+        );
+
+        return $this;
+    }
+
+    protected function validate(UploadFile $file)
+    {
+        /* Validate extension */
+        if (is_array($this->allowedExtensions) && count($this->allowedExtensions)) {
+            if ( ! in_array('.' . $file->getExtension(), $this->allowedExtensions)) {
+                $this->errors[] = language()->getLine(
+                    'UPLOADER_E_ALLOWED_EXTENSIONS',
+                    [implode(',', $this->allowedExtensions), $file->getExtension()]
+                );
+            }
+        }
+
+        /* Validate mime */
+        if (is_array($this->allowedMimes) && count($this->allowedExtensions)) {
+            if ( ! in_array($file->getFileMime(), $this->allowedMimes)) {
+                $this->errors[] = language()->getLine(
+                    'UPLOADER_E_ALLOWED_MIMES',
+                    [implode(',', $this->allowedMimes), $file->getFileMime()]
+                );
+            }
+        }
+
+        /* Validate min size */
+        if ($this->allowedFileSize[ 'min' ] > 0) {
+            if ($file->getSize() < $this->allowedFileSize[ 'min' ]) {
+                $this->errors[] = language()->getLine(
+                    'UPLOADER_E_ALLOWED_MIN_FILESIZE',
+                    [$this->allowedFileSize[ 'min' ], $file->getSize()]
+                );
+            }
+        }
+
+        /* Validate max size */
+        if ($this->allowedFileSize[ 'min' ] > 0) {
+            if ($file->getSize() > $this->allowedFileSize[ 'max' ]) {
+                $this->errors[] = language()->getLine(
+                    'UPLOADER_E_ALLOWED_MAX_FILESIZE',
+                    [$this->allowedFileSize[ 'max' ], $file->getSize()]
+                );
+            }
+        }
+
+        if (count($this->errors) == 0) {
+            return true;
         }
 
         return false;

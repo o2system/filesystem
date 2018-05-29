@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Filesystem;
@@ -35,14 +36,14 @@ class File extends SplFileInfo
 
     /**
      * File::__construct
-     * 
+     *
      * @param string|null $filePath
      */
-    public function __construct( $filePath = null )
+    public function __construct($filePath = null)
     {
-        if ( isset( $filePath ) ) {
+        if (isset($filePath)) {
             $this->filePath = $filePath;
-            parent::__construct( $filePath );
+            parent::__construct($filePath);
         }
     }
 
@@ -60,12 +61,12 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setGroup( $group )
+    public function setGroup($group)
     {
         $params[] = $this->getRealPath();
         $params[] = $group;
 
-        return call_user_func_array( 'chgrp', $params );
+        return call_user_func_array('chgrp', $params);
     }
 
     // ------------------------------------------------------------------------
@@ -84,12 +85,12 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setMode( $mode )
+    public function setMode($mode)
     {
         $params[] = $this->getRealPath();
         $params[] = $mode;
 
-        return call_user_func_array( 'chmod', $params );
+        return call_user_func_array('chmod', $params);
     }
 
     // ------------------------------------------------------------------------
@@ -104,12 +105,12 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setOwner( $user )
+    public function setOwner($user)
     {
         $params[] = $this->getRealPath();
         $params[] = $user;
 
-        return call_user_func_array( 'chown', $params );
+        return call_user_func_array('chown', $params);
     }
 
     // ------------------------------------------------------------------------
@@ -123,12 +124,12 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setLink( $link )
+    public function setLink($link)
     {
         $params[] = $this->getRealPath();
         $params[] = $link;
 
-        return call_user_func_array( 'symlink', $params );
+        return call_user_func_array('symlink', $params);
     }
 
     // ------------------------------------------------------------------------
@@ -154,18 +155,18 @@ class File extends SplFileInfo
      *
      * @return string   The function returns the read data or FALSE on failure.
      */
-    public function getContents( $useIncludePath = false, $context = null, $offset = 0, $maxlen = 0 )
+    public function getContents($useIncludePath = false, $context = null, $offset = 0, $maxlen = 0)
     {
         $params[] = $this->getRealPath();
         $params[] = $useIncludePath;
         $params[] = $context;
         $params[] = $offset;
 
-        if ( $maxlen > 0 ) {
+        if ($maxlen > 0) {
             $params[] = $maxlen;
         }
 
-        return call_user_func_array( 'file_get_contents', $params );
+        return call_user_func_array('file_get_contents', $params);
     }
 
     // ------------------------------------------------------------------------
@@ -180,13 +181,13 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function touch( $time = null, $atime = null )
+    public function touch($time = null, $atime = null)
     {
         $params[] = $this->getRealPath();
-        $params[] = ( isset( $time ) ? $time : time() );
-        $params[] = ( isset( $atime ) ? $atime : time() );
+        $params[] = (isset($time) ? $time : time());
+        $params[] = (isset($atime) ? $atime : time());
 
-        return call_user_func_array( 'touch', $params );
+        return call_user_func_array('touch', $params);
     }
 
     // ------------------------------------------------------------------------
@@ -200,56 +201,56 @@ class File extends SplFileInfo
      */
     public function show()
     {
-        if ( $mime = $this->getMime() ) {
-            $mime = is_array( $mime ) ? $mime[ 0 ] : $mime;
-        } elseif ( is_file( $this->getRealPath() ) ) {
+        if ($mime = $this->getMime()) {
+            $mime = is_array($mime) ? $mime[ 0 ] : $mime;
+        } elseif (is_file($this->getRealPath())) {
             $mime = 'application/octet-stream';
         }
 
-        $fileSize = filesize( $this->getRealPath() );
-        $filename = pathinfo( $this->getRealPath(), PATHINFO_BASENAME );
+        $fileSize = filesize($this->getRealPath());
+        $filename = pathinfo($this->getRealPath(), PATHINFO_BASENAME);
 
         // Common headers
         $expires = 604800; // (60*60*24*7)
-        header( 'Expires:' . gmdate( 'D, d M Y H:i:s', time() + $expires ) . ' GMT' );
+        header('Expires:' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
 
-        header( 'Accept-Ranges: bytes', true );
-        header( "Cache-control: private", true );
-        header( 'Pragma: private', true );
+        header('Accept-Ranges: bytes', true);
+        header("Cache-control: private", true);
+        header('Pragma: private', true);
 
-        header( 'Content-Type: ' . $mime );
-        header( 'Content-Disposition: inline; filename="' . $filename . '"' );
-        header( 'Content-Transfer-Encoding: binary' );
-        header( 'Accept-Ranges: bytes' );
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: inline; filename="' . $filename . '"');
+        header('Content-Transfer-Encoding: binary');
+        header('Accept-Ranges: bytes');
 
-        $ETag = '"' . md5( $filename ) . '"';
+        $ETag = '"' . md5($filename) . '"';
 
-        if ( ! empty( $_SERVER[ 'HTTP_IF_NONE_MATCH' ] )
+        if ( ! empty($_SERVER[ 'HTTP_IF_NONE_MATCH' ])
             && $_SERVER[ 'HTTP_IF_NONE_MATCH' ] == $ETag
         ) {
-            header( 'HTTP/1.1 304 Not Modified' );
-            header( 'Content-Length: ' . $fileSize );
+            header('HTTP/1.1 304 Not Modified');
+            header('Content-Length: ' . $fileSize);
             exit;
         }
 
         $expires = 604800; // (60*60*24*7)
-        header( 'ETag: ' . $ETag );
-        header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', time() ) . ' GMT' );
-        header( 'Expires:' . gmdate( 'D, d M Y H:i:s', time() + $expires ) . ' GMT' );
+        header('ETag: ' . $ETag);
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
+        header('Expires:' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
 
         // Open file
         // @readfile($file_path);
-        $file = @fopen( $filename, "rb" );
-        if ( $file ) {
-            while ( ! feof( $file ) ) {
-                print( fread( $file, 1024 * 8 ) );
+        $file = @fopen($filename, "rb");
+        if ($file) {
+            while ( ! feof($file)) {
+                print(fread($file, 1024 * 8));
                 flush();
-                if ( connection_status() != 0 ) {
-                    @fclose( $file );
+                if (connection_status() != 0) {
+                    @fclose($file);
                     die();
                 }
             }
-            @fclose( $file );
+            @fclose($file);
         }
     }
 
@@ -265,9 +266,9 @@ class File extends SplFileInfo
     public function getMime()
     {
         $mimes = $this->getMimes();
-        $ext = strtolower( $this->getExtension() );
+        $ext = strtolower($this->getExtension());
 
-        if ( isset( $mimes[ $ext ] ) ) {
+        if (isset($mimes[ $ext ])) {
             return $mimes[ $ext ];
         }
 
@@ -288,9 +289,9 @@ class File extends SplFileInfo
     {
         static $mimes;
 
-        if ( empty( $mimes ) ) {
-            if ( file_exists( __DIR__ . '/Config/Mimes.php' ) ) {
-                $mimes = require( __DIR__ . '/Config/Mimes.php' );
+        if (empty($mimes)) {
+            if (file_exists(__DIR__ . '/Config/Mimes.php')) {
+                $mimes = require(__DIR__ . '/Config/Mimes.php');
             }
         }
 
@@ -311,44 +312,13 @@ class File extends SplFileInfo
      * @return int  Returns the number of bytes read from the file. If an error occurs, FALSE is returned and unless
      *              the function was called as @readfile(), an error message is printed.
      */
-    public function read( $useIncludePath = false, $context = null )
+    public function read($useIncludePath = false, $context = null)
     {
         $params[] = $this->getRealPath();
         $params[] = $useIncludePath;
         $params[] = $context;
 
-        return call_user_func_array( 'readfile', $params );
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * File::create
-     *
-     * Create a File
-     * 
-     * @param  string|null $filePath
-     * @param  string $mode
-     * @return resource
-     */
-    public function create( $filePath = null, $mode = 'wb' )
-    {
-        $filePath = isset( $filePath ) ? $filePath : $this->filePath;
-        $dir = dirname( $filePath );
-
-        if ( ! is_writable( $dir ) ) {
-            if ( ! file_exists( $dir ) ) {
-                mkdir( $dir, 0777, true );
-            }
-        }
-
-        if ( ! $fp = @fopen( $filePath, $mode ) ) {
-            return false;
-        }
-
-        parent::__construct( $filePath );
-
-        return $fp;
+        return call_user_func_array('readfile', $params);
     }
 
     // ------------------------------------------------------------------------
@@ -363,24 +333,56 @@ class File extends SplFileInfo
      *
      * @return bool
      */
-    public function write( $filePath, $contents, $mode = 'wb' )
+    public function write($filePath, $contents, $mode = 'wb')
     {
-        if ( false !== ( $fp = $this->create( $filePath, $mode ) ) ) {
-            flock( $fp, LOCK_EX );
+        if (false !== ($fp = $this->create($filePath, $mode))) {
+            flock($fp, LOCK_EX);
 
-            for ( $result = $written = 0, $length = strlen( $contents ); $written < $length; $written += $result ) {
-                if ( ( $result = fwrite( $fp, substr( $contents, $written ) ) ) === false ) {
+            for ($result = $written = 0, $length = strlen($contents); $written < $length; $written += $result) {
+                if (($result = fwrite($fp, substr($contents, $written))) === false) {
                     break;
                 }
             }
 
-            flock( $fp, LOCK_UN );
-            fclose( $fp );
+            flock($fp, LOCK_UN);
+            fclose($fp);
 
-            return is_int( $result );
+            return is_int($result);
         }
 
         return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * File::create
+     *
+     * Create a File
+     *
+     * @param  string|null $filePath
+     * @param  string      $mode
+     *
+     * @return resource
+     */
+    public function create($filePath = null, $mode = 'wb')
+    {
+        $filePath = isset($filePath) ? $filePath : $this->filePath;
+        $dir = dirname($filePath);
+
+        if ( ! is_writable($dir)) {
+            if ( ! file_exists($dir)) {
+                mkdir($dir, 0777, true);
+            }
+        }
+
+        if ( ! $fp = @fopen($filePath, $mode)) {
+            return false;
+        }
+
+        parent::__construct($filePath);
+
+        return $fp;
     }
 
     // ------------------------------------------------------------------------
@@ -396,13 +398,13 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function rename( $newFilename, $context = null )
+    public function rename($newFilename, $context = null)
     {
         $params[] = $this->getRealPath();
-        $params[] = dirname( $this->getRealPath() ) . DIRECTORY_SEPARATOR . $newFilename;
+        $params[] = dirname($this->getRealPath()) . DIRECTORY_SEPARATOR . $newFilename;
         $params[] = $context;
 
-        return call_user_func_array( 'rename', $params );
+        return call_user_func_array('rename', $params);
     }
 
     // ------------------------------------------------------------------------
@@ -418,13 +420,13 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function copy( $destination, $context = null )
+    public function copy($destination, $context = null)
     {
         $params[] = $this->getRealPath();
         $params[] = $destination;
         $params[] = $context;
 
-        return call_user_func_array( 'copy', $params );
+        return call_user_func_array('copy', $params);
     }
 
     // ------------------------------------------------------------------------
@@ -439,11 +441,11 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function delete( $context = null )
+    public function delete($context = null)
     {
         $params[] = $this->getRealPath();
         $params[] = $context;
 
-        return call_user_func_array( 'unlink', $params );
+        return call_user_func_array('unlink', $params);
     }
 }

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Filesystem\Handlers;
@@ -44,42 +45,42 @@ class Downloader
     protected $speedLimit = 512;
     protected $bufferSize = 2048;
 
-    public function __construct( $filePath, $mode = self::MODE_FILESTREAM )
+    public function __construct($filePath, $mode = self::MODE_FILESTREAM)
     {
         global $HTTP_SERVER_VARS;
 
         $this->mode = $mode;
 
         // disables apache compression mod_deflate || mod_gzip
-        if( function_exists( 'apache_setenv' ) ) {
-            @apache_setenv( 'no-gzip', 1 );
+        if (function_exists('apache_setenv')) {
+            @apache_setenv('no-gzip', 1);
         }
 
         // disable php cpmpression
-        @ini_set( 'zlib.output_compression', 'Off' );
+        @ini_set('zlib.output_compression', 'Off');
 
-        if ( $mode === self::MODE_FILESTREAM ) {
+        if ($mode === self::MODE_FILESTREAM) {
             // Check if File exists and is file or not
-            if ( ! is_file( $filePath ) ) {
+            if ( ! is_file($filePath)) {
                 output()
-                    ->withStatus( 404, 'File Not Found' )
-                    ->send( 'File Not Found' );
+                    ->withStatus(404, 'File Not Found')
+                    ->send('File Not Found');
             }// Try To Open File for read
-            elseif ( ! is_readable( $filePath ) || ! ( $this->filedata = fopen( $filePath, 'rb' ) ) ) {
+            elseif ( ! is_readable($filePath) || ! ($this->filedata = fopen($filePath, 'rb'))) {
                 output()
-                    ->withStatus( 403, 'Forbidden' )
-                    ->send( 'File Not Accessible' );
+                    ->withStatus(403, 'Forbidden')
+                    ->send('File Not Accessible');
             }
 
-            $this->fileinfo = pathinfo( $filePath );
-            $this->filesize = filesize( $filePath );
-            $this->filemime = $this->getMime( $filePath );
-            $this->lastModified = filemtime( $filePath );
+            $this->fileinfo = pathinfo($filePath);
+            $this->filesize = filesize($filePath);
+            $this->filemime = $this->getMime($filePath);
+            $this->lastModified = filemtime($filePath);
 
-        } elseif ( $mode === self::MODE_DATASTREAM ) {
-            if ( is_file( $filePath ) ) {
-                $this->filedata = file_get_contents( $filePath );
-                $this->fileinfo = pathinfo( $filePath );
+        } elseif ($mode === self::MODE_DATASTREAM) {
+            if (is_file($filePath)) {
+                $this->filedata = file_get_contents($filePath);
+                $this->fileinfo = pathinfo($filePath);
             } else {
                 $this->filedata = $filePath;
                 $this->fileinfo = [
@@ -90,30 +91,30 @@ class Downloader
                 ];
             }
 
-            $this->filesize = strlen( $this->filedata );
-            $this->filemime = $this->getMime( $this->fileinfo[ 'filename' ] );
+            $this->filesize = strlen($this->filedata);
+            $this->filemime = $this->getMime($this->fileinfo[ 'filename' ]);
             $this->lastModified = time();
 
         } else {
             output()
-                ->withStatus( 400, 'Bad Request' )
-                ->send( 'Undefined Download Mode' );
+                ->withStatus(400, 'Bad Request')
+                ->send('Undefined Download Mode');
         }
 
         // Range
-        if ( isset( $_SERVER[ 'HTTP_RANGE' ] ) || isset( $HTTP_SERVER_VARS[ 'HTTP_RANGE' ] ) ) {
+        if (isset($_SERVER[ 'HTTP_RANGE' ]) || isset($HTTP_SERVER_VARS[ 'HTTP_RANGE' ])) {
             $this->partialRequest = true;
-            $http_range = isset( $_SERVER[ 'HTTP_RANGE' ] ) ? $_SERVER[ 'HTTP_RANGE' ] : $HTTP_SERVER_VARS[ 'HTTP_RANGE' ];
-            if ( stripos( $http_range, 'bytes' ) === false ) {
+            $http_range = isset($_SERVER[ 'HTTP_RANGE' ]) ? $_SERVER[ 'HTTP_RANGE' ] : $HTTP_SERVER_VARS[ 'HTTP_RANGE' ];
+            if (stripos($http_range, 'bytes') === false) {
                 output()
-                    ->withStatus( 416, 'Requested Range Not Satisfiable' )
-                    ->send( 'Requested Range Not Satisfiable' );
+                    ->withStatus(416, 'Requested Range Not Satisfiable')
+                    ->send('Requested Range Not Satisfiable');
             }
 
-            $range = substr( $http_range, strlen( 'bytes=' ) );
-            $range = explode( '-', $range, 3 );
-            $this->seekStart = ( $range[ 0 ] > 0 && $range[ 0 ] < $this->filesize - 1 ) ? $range[ 0 ] : 0;
-            $this->seekEnd = ( $range[ 1 ] > 0 && $range[ 1 ] < $this->filesize && $range[ 1 ] > $this->seekStart ) ? $range[ 1 ] : $this->filesize - 1;
+            $range = substr($http_range, strlen('bytes='));
+            $range = explode('-', $range, 3);
+            $this->seekStart = ($range[ 0 ] > 0 && $range[ 0 ] < $this->filesize - 1) ? $range[ 0 ] : 0;
+            $this->seekEnd = ($range[ 1 ] > 0 && $range[ 1 ] < $this->filesize && $range[ 1 ] > $this->seekStart) ? $range[ 1 ] : $this->filesize - 1;
             $this->seekFilesize = $this->seekEnd - $this->seekStart + 1;
         } else {
             $this->partialRequest = false;
@@ -123,20 +124,39 @@ class Downloader
         }
     }
 
-    public function download( $filename = null )
+    private function getMime($filePath)
     {
-        $filename = isset( $filename ) ? $filename : $this->fileinfo[ 'basename' ];
+        $file = new File($filePath);
+        $mime = $file->getMime();
 
-        if ( $this->partialRequest ) {
-            if ( $this->resumeable ) {
+        if (is_array($mime)) {
+            $mime = reset($mime);
+        }
+
+        return $mime;
+    }
+
+    public function forceDownload($filename = null, $filemime = 'application/octet-stream')
+    {
+        // Force mime
+        $this->filemime = $filemime;
+        $this->download($filename);
+    }
+
+    public function download($filename = null)
+    {
+        $filename = isset($filename) ? $filename : $this->fileinfo[ 'basename' ];
+
+        if ($this->partialRequest) {
+            if ($this->resumeable) {
                 // Turn on resume capability
                 output()
-                    ->sendHeaderStatus( 206, 'Partial Content', '1.0' )
-                    ->sendHeader( 'Status', '206 Partial Content' )
-                    ->sendHeader( 'Accept-Ranges', 'bytes' );
+                    ->sendHeaderStatus(206, 'Partial Content', '1.0')
+                    ->sendHeader('Status', '206 Partial Content')
+                    ->sendHeader('Accept-Ranges', 'bytes');
 
-                output()->sendHeader( 'Content-range',
-                    'bytes ' . $this->seekStart . '-' . $this->seekEnd . '/' . $this->filesize );
+                output()->sendHeader('Content-range',
+                    'bytes ' . $this->seekStart . '-' . $this->seekEnd . '/' . $this->filesize);
             } else {
                 // Turn off resume capability
                 $this->seekStart = 0;
@@ -147,22 +167,22 @@ class Downloader
 
         // Common Download Headers content type, content disposition, content length and last modified
         output()
-            ->sendHeader( 'Content-Type', $this->filemime )
-            ->sendHeader( 'Content-Disposition', 'attachment; filename=' . $filename )
-            ->sendHeader( 'Content-Length', $this->seekFilesize )
-            ->sendHeader( 'Last-Modified', date( 'D, d M Y H:i:s \G\M\T', $this->lastModified ) );
+            ->sendHeader('Content-Type', $this->filemime)
+            ->sendHeader('Content-Disposition', 'attachment; filename=' . $filename)
+            ->sendHeader('Content-Length', $this->seekFilesize)
+            ->sendHeader('Last-Modified', date('D, d M Y H:i:s \G\M\T', $this->lastModified));
         // End Headers Stage
 
         // Work On Download Speed Limit
-        if ( $this->speedLimit ) {
+        if ($this->speedLimit) {
             // how many buffers ticks per second
             $bufferTicks = 10;    //10
             // how long one buffering tick takes by micro second
             $bufferMicroTime = 150; // 100
             // Calculate sleep micro time after each tick
-            $sleepMicroTime = round( ( 1000000 - ( $bufferTicks * $bufferMicroTime ) ) / $bufferTicks );
+            $sleepMicroTime = round((1000000 - ($bufferTicks * $bufferMicroTime)) / $bufferTicks);
             // Calculate required buffer per one tick, make sure it is integer so round the result
-            $this->bufferSize = round( $this->speedLimit * 1024 / $bufferTicks );
+            $this->bufferSize = round($this->speedLimit * 1024 / $bufferTicks);
         }
         // Immediatly Before Downloading
         // clean any output buffer
@@ -170,29 +190,29 @@ class Downloader
 
         // get oignore_user_abort value, then change it to yes
         $oldUserAbortSetting = ignore_user_abort();
-        ignore_user_abort( true );
+        ignore_user_abort(true);
         // set script execution time to be unlimited
-        @set_time_limit( 0 );
+        @set_time_limit(0);
 
 
         // Download According Download Mode
-        if ( $this->mode === self::MODE_FILESTREAM ) {
+        if ($this->mode === self::MODE_FILESTREAM) {
             // Download Data by fopen
             $downloadFileBytes = $this->seekFilesize;
             $downloaded = 0;
             // goto the position of the first byte to download
-            fseek( $this->filedata, $this->seekStart );
-            while ( $downloadFileBytes > 0 && ! ( connection_aborted() || connection_status() == 1 ) ) {
+            fseek($this->filedata, $this->seekStart);
+            while ($downloadFileBytes > 0 && ! (connection_aborted() || connection_status() == 1)) {
                 // still Downloading
-                if ( $downloadFileBytes > $this->bufferSize ) {
+                if ($downloadFileBytes > $this->bufferSize) {
                     // send buffer size
-                    echo fread( $this->filedata, $this->bufferSize ); // this also will seek to after last read byte
+                    echo fread($this->filedata, $this->bufferSize); // this also will seek to after last read byte
                     $downloaded += $this->bufferSize;    // updated downloaded
                     $downloadFileBytes -= $this->bufferSize;    // update remaining bytes
                 } else {
                     // send required size
                     // this will happens when we reaches the end of the file normally we wll download remaining bytes
-                    echo fread( $this->filedata, $downloadFileBytes );    // this also will seek to last reat
+                    echo fread($this->filedata, $downloadFileBytes);    // this also will seek to last reat
 
                     $downloaded += $downloadFileBytes;    // Add to downloaded
 
@@ -202,31 +222,31 @@ class Downloader
                 // send to buffer
                 flush();
                 // Check For Download Limit
-                if ( $this->speedLimit ) {
-                    usleep( $sleepMicroTime );
+                if ($this->speedLimit) {
+                    usleep($sleepMicroTime);
                 }
 
 
             }
             // all bytes have been sent to user
             // Close File
-            fclose( $this->filedata );
-        } elseif( $this->mode === self::MODE_DATASTREAM ) {
+            fclose($this->filedata);
+        } elseif ($this->mode === self::MODE_DATASTREAM) {
             // Download Data String
             $downloadFileBytes = $this->seekFilesize;
 
             $downloaded = 0;
             $offset = $this->seekStart;
-            while ( $downloadFileBytes > 0 && ( ! connection_aborted() ) ) {
-                if ( $downloadFileBytes > $this->bufferSize ) {
+            while ($downloadFileBytes > 0 && ( ! connection_aborted())) {
+                if ($downloadFileBytes > $this->bufferSize) {
                     // Download by buffer
-                    echo mb_strcut( $this->filedata, $offset, $this->bufferSize );
+                    echo mb_strcut($this->filedata, $offset, $this->bufferSize);
                     $downloadFileBytes -= $this->bufferSize;
                     $downloaded += $this->bufferSize;
                     $offset += $this->bufferSize;
                 } else {
                     // download last bytes
-                    echo mb_strcut( $this->filedata, $offset, $downloadFileBytes );
+                    echo mb_strcut($this->filedata, $offset, $downloadFileBytes);
                     $downloaded += $downloadFileBytes;
                     $offset += $downloadFileBytes;
                     $downloadFileBytes = 0;
@@ -234,8 +254,8 @@ class Downloader
                 // Send Data to Buffer
                 flush();
                 // Check Limit
-                if ( $this->speedLimit ) {
-                    usleep( $sleepMicroTime );
+                if ($this->speedLimit) {
+                    usleep($sleepMicroTime);
                 }
 
             }
@@ -243,43 +263,24 @@ class Downloader
 
         // Set Downloaded Bytes
         $this->downloadedFilesize = $downloaded;
-        ignore_user_abort( $oldUserAbortSetting ); // Restore old user abort settings
-        set_time_limit( ini_get( 'max_execution_time' ) ); // Restore Default script max execution Time
+        ignore_user_abort($oldUserAbortSetting); // Restore old user abort settings
+        set_time_limit(ini_get('max_execution_time')); // Restore Default script max execution Time
 
         exit;
     }
 
-    public function forceDownload( $filename = null, $filemime = 'application/octet-stream' )
-    {
-        // Force mime
-        $this->filemime = $filemime;
-        $this->download( $filename );
-    }
-
-    public function resumeable( $status = true )
+    public function resumeable($status = true)
     {
         $this->partialRequest = $this->resumeable = ( bool )$status;
 
         return $this;
     }
 
-    public function speedLimit( $limit )
+    public function speedLimit($limit)
     {
-        $limit = intval( $limit );
+        $limit = intval($limit);
         $this->speedLimit = $limit;
 
         return $this;
-    }
-
-    private function getMime( $filePath )
-    {
-        $file = new File( $filePath );
-        $mime = $file->getMime();
-
-        if ( is_array( $mime ) ) {
-            $mime = reset( $mime );
-        }
-
-        return $mime;
     }
 }

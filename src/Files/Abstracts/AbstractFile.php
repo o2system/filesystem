@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Filesystem\Files\Abstracts;
@@ -25,14 +26,14 @@ abstract class AbstractFile extends AbstractRepository
 {
     /**
      * AbstractFile::$fileExtension
-     * 
+     *
      * @var string
      */
     protected $fileExtension;
 
     /**
      * AbstractFile::$filePath
-     * 
+     *
      * @var string
      */
     protected $filePath;
@@ -44,9 +45,9 @@ abstract class AbstractFile extends AbstractRepository
      *
      * @param string|null $filePath Path to the file.
      */
-    final public function __construct( $filePath = null )
+    final public function __construct($filePath = null)
     {
-        if ( isset( $filePath ) ) {
+        if (isset($filePath)) {
             $this->filePath = $filePath;
         }
     }
@@ -60,13 +61,13 @@ abstract class AbstractFile extends AbstractRepository
      *
      * @return static
      */
-    final public function createFile( $filePath = null )
+    final public function createFile($filePath = null)
     {
-        if ( isset( $filePath ) ) {
+        if (isset($filePath)) {
             $this->filePath = $filePath;
         }
 
-        if( pathinfo( $this->filePath, PATHINFO_EXTENSION) === '') {
+        if (pathinfo($this->filePath, PATHINFO_EXTENSION) === '') {
             $this->filePath .= $this->fileExtension;
         }
 
@@ -83,7 +84,7 @@ abstract class AbstractFile extends AbstractRepository
      *
      * @return mixed
      */
-    abstract public function readFile( $filePath = null, array $options = [] );
+    abstract public function readFile($filePath = null, array $options = []);
 
     // ------------------------------------------------------------------------
 
@@ -95,5 +96,5 @@ abstract class AbstractFile extends AbstractRepository
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    abstract public function writeFile( $filePath = null, array $options = [] );
+    abstract public function writeFile($filePath = null, array $options = []);
 }

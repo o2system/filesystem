@@ -8,14 +8,15 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Filesystem\Files;
 
 // ------------------------------------------------------------------------
 
-use O2System\Filesystem\Files\Abstracts\AbstractFile;
 use O2System\Filesystem\File;
+use O2System\Filesystem\Files\Abstracts\AbstractFile;
 
 /**
  * Class IniFile
@@ -34,16 +35,16 @@ class IniFile extends AbstractFile
      *
      * @return mixed
      */
-    public function readFile( $filePath, array $options = [] )
+    public function readFile($filePath, array $options = [])
     {
         $items = parse_ini_file(
             $filePath,
-            ( empty( $options )
+            (empty($options)
                 ? true
-                : $options[ 'sections' ] )
+                : $options[ 'sections' ])
         );
 
-        $this->merge( $items );
+        $this->merge($items);
 
         return $items;
     }
@@ -58,72 +59,72 @@ class IniFile extends AbstractFile
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function writeFile( $filePath = null, array $options = [] )
+    public function writeFile($filePath = null, array $options = [])
     {
-        $filePath = empty( $filePath )
+        $filePath = empty($filePath)
             ? $this->filePath
             : $filePath;
 
-        $sections = ( empty( $options )
+        $sections = (empty($options)
             ? true
-            : $options[ 'sections' ] );
+            : $options[ 'sections' ]);
 
         $content = null;
 
-        if ( $sections ) {
-            foreach ( $this->getArrayCopy() as $section => $data ) {
-                if ( is_array( $data ) ) {
+        if ($sections) {
+            foreach ($this->getArrayCopy() as $section => $data) {
+                if (is_array($data)) {
                     $content .= '[' . $section . ']' . PHP_EOL;
 
-                    foreach ( $data as $key => $value ) {
-                        if ( is_array( $value ) ) {
-                            foreach ( $value as $valueChild ) {
-                                $content .= $key . '[] = ' . ( is_numeric( $valueChild )
+                    foreach ($data as $key => $value) {
+                        if (is_array($value)) {
+                            foreach ($value as $valueChild) {
+                                $content .= $key . '[] = ' . (is_numeric($valueChild)
                                         ? $valueChild
-                                        : '"' . $valueChild . '"' ) . PHP_EOL;
+                                        : '"' . $valueChild . '"') . PHP_EOL;
                             }
-                        } elseif ( strpos( $key, ';' ) !== false ) {
-                            $content .= '; ' . trim( ucfirst( $key ), ';' ) . ' ' . $value . PHP_EOL;
-                        } elseif ( empty( $value ) ) {
+                        } elseif (strpos($key, ';') !== false) {
+                            $content .= '; ' . trim(ucfirst($key), ';') . ' ' . $value . PHP_EOL;
+                        } elseif (empty($value)) {
                             $content .= $key . ' = ' . PHP_EOL;
                         } else {
-                            $content .= $key . ' = ' . ( is_numeric( $value )
+                            $content .= $key . ' = ' . (is_numeric($value)
                                     ? $value
-                                    : '"' . $value . '"' ) . PHP_EOL;
+                                    : '"' . $value . '"') . PHP_EOL;
                         }
                     }
 
                     $content .= PHP_EOL;
-                } elseif ( strpos( $section, ';' ) !== false ) {
-                    $content .= '; ' . trim( ucfirst( $section ), ';' ) . ' ' . $data . PHP_EOL;
-                } elseif ( empty( $data ) ) {
+                } elseif (strpos($section, ';') !== false) {
+                    $content .= '; ' . trim(ucfirst($section), ';') . ' ' . $data . PHP_EOL;
+                } elseif (empty($data)) {
                     $content .= $section . ' = ' . PHP_EOL;
                 } else {
-                    $content .= $section . ' = ' . ( is_numeric( $data )
+                    $content .= $section . ' = ' . (is_numeric($data)
                             ? $data
-                            : '"' . $data . '"' ) . PHP_EOL;
+                            : '"' . $data . '"') . PHP_EOL;
                 }
             }
         } else {
-            foreach ( $this->getArrayCopy() as $key => $value ) {
-                if ( is_array( $value ) ) {
-                    foreach ( $value as $valueChild ) {
-                        $content .= $key . '[] = ' . ( is_numeric( $valueChild )
+            foreach ($this->getArrayCopy() as $key => $value) {
+                if (is_array($value)) {
+                    foreach ($value as $valueChild) {
+                        $content .= $key . '[] = ' . (is_numeric($valueChild)
                                 ? $valueChild
-                                : '"' . $valueChild . '"' ) . PHP_EOL;
+                                : '"' . $valueChild . '"') . PHP_EOL;
                     }
-                } elseif ( strpos( $key, ';' ) !== false ) {
-                    $content .= '; ' . trim( ucfirst( $key ), ';' ) . ' ' . $value . PHP_EOL;
-                } elseif ( empty( $value ) ) {
+                } elseif (strpos($key, ';') !== false) {
+                    $content .= '; ' . trim(ucfirst($key), ';') . ' ' . $value . PHP_EOL;
+                } elseif (empty($value)) {
                     $content .= $key . ' = ' . PHP_EOL;
                 } else {
-                    $content .= $key . ' = ' . ( is_numeric( $value )
+                    $content .= $key . ' = ' . (is_numeric($value)
                             ? $value
-                            : '"' . $value . '"' ) . PHP_EOL;
+                            : '"' . $value . '"') . PHP_EOL;
                 }
             }
         }
 
-        return ( new File() )->write( $filePath, $content );
+        return (new File())->write($filePath, $content);
     }
 }

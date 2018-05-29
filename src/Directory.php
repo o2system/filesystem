@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Filesystem;
@@ -34,30 +35,30 @@ class Directory extends SplDirectoryInfo
      *
      * @return bool|\O2System\Spl\Info\SplDirectoryInfo
      */
-    public function make( $dir = null, $mode = 0777, $recursive = true )
+    public function make($dir = null, $mode = 0777, $recursive = true)
     {
-        $dir = is_null( $dir ) ? $this->getPathName() : $dir;
+        $dir = is_null($dir) ? $this->getPathName() : $dir;
 
-        if ( is_dir( $dir ) ) {
-            return new SplDirectoryInfo( $dir );
-        } elseif ( null !== ( $pathName = $this->getPathName() ) ) {
-            if ( mkdir(
+        if (is_dir($dir)) {
+            return new SplDirectoryInfo($dir);
+        } elseif (null !== ($pathName = $this->getPathName())) {
+            if (mkdir(
                 $makeDirectory = $pathName . DIRECTORY_SEPARATOR . str_replace(
-                        [ '\\', '/' ],
+                        ['\\', '/'],
                         DIRECTORY_SEPARATOR,
                         $dir
                     ),
                 $mode,
                 $recursive
-            ) ) {
-                return new SplDirectoryInfo( $makeDirectory );
+            )) {
+                return new SplDirectoryInfo($makeDirectory);
             }
-        } elseif ( mkdir(
-            $makeDirectory = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $dir ),
+        } elseif (mkdir(
+            $makeDirectory = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $dir),
             $mode,
             $recursive
-        ) ) {
-            return new SplDirectoryInfo( $makeDirectory );
+        )) {
+            return new SplDirectoryInfo($makeDirectory);
         }
 
         return false;
@@ -74,9 +75,9 @@ class Directory extends SplDirectoryInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function delete( $fileOnly = false )
+    public function delete($fileOnly = false)
     {
-        return $this->recursiveDelete( $this->getRealPath(), $fileOnly );
+        return $this->recursiveDelete($this->getRealPath(), $fileOnly);
     }
 
     // ------------------------------------------------------------------------
@@ -89,23 +90,23 @@ class Directory extends SplDirectoryInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    private function recursiveDelete( $dir, $fileOnly = false )
+    private function recursiveDelete($dir, $fileOnly = false)
     {
-        $dir = realpath( $dir );
+        $dir = realpath($dir);
 
-        if ( is_dir( $dir ) ) {
-            $iterator = new \RecursiveDirectoryIterator( $dir, \RecursiveDirectoryIterator::SKIP_DOTS );
-            $files = new \RecursiveIteratorIterator( $iterator, \RecursiveIteratorIterator::CHILD_FIRST );
-            foreach ( $files as $file ) {
-                if ( $file->isDir() ) {
-                    $this->recursiveDelete( $file->getRealPath(), $fileOnly );
-                } elseif ( $file->isFile() ) {
-                    unlink( $file->getRealPath() );
+        if (is_dir($dir)) {
+            $iterator = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
+            $files = new \RecursiveIteratorIterator($iterator, \RecursiveIteratorIterator::CHILD_FIRST);
+            foreach ($files as $file) {
+                if ($file->isDir()) {
+                    $this->recursiveDelete($file->getRealPath(), $fileOnly);
+                } elseif ($file->isFile()) {
+                    unlink($file->getRealPath());
                 }
             }
 
-            if ( $fileOnly === false ) {
-                rmdir( $dir );
+            if ($fileOnly === false) {
+                rmdir($dir);
             }
 
             return true;
@@ -128,12 +129,12 @@ class Directory extends SplDirectoryInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setGroup( $group )
+    public function setGroup($group)
     {
         $params[] = $this->getRealPath();
         $params[] = $group;
 
-        return call_user_func_array( 'chgrp', $params );
+        return call_user_func_array('chgrp', $params);
     }
 
     // ------------------------------------------------------------------------
@@ -153,12 +154,12 @@ class Directory extends SplDirectoryInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setMode( $mode )
+    public function setMode($mode)
     {
         $params[] = $this->getRealPath();
         $params[] = $mode;
 
-        return call_user_func_array( 'chmod', $params );
+        return call_user_func_array('chmod', $params);
     }
 
     // ------------------------------------------------------------------------
@@ -173,34 +174,34 @@ class Directory extends SplDirectoryInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setOwner( $user )
+    public function setOwner($user)
     {
         $params[] = $this->getRealPath();
         $params[] = $user;
 
-        return call_user_func_array( 'chown', $params );
+        return call_user_func_array('chown', $params);
     }
 
     // ------------------------------------------------------------------------
 
-    public function findFilesByExtension( $extension )
+    public function findFilesByExtension($extension)
     {
-        $extension = trim( $extension, '.' );
+        $extension = trim($extension, '.');
 
         $directoryIterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator( $this->getRealPath() ),
+            new \RecursiveDirectoryIterator($this->getRealPath()),
             \RecursiveIteratorIterator::SELF_FIRST
         );
 
         $result = [];
 
-        foreach ( $directoryIterator as $directoryFile ) {
-            if ( $directoryFile->isFile() ) {
-                if ( $extension === '*' ) {
-                    array_push( $result, $directoryFile->getFilename() );
-                } elseif ( preg_match( '/\.' . $extension . '$/ui', $directoryFile->getFilename() ) ) {
-                    if ( ! in_array( $directoryFile->getRealPath(), $result ) ) {
-                        array_push( $result, $directoryFile->getRealPath() );
+        foreach ($directoryIterator as $directoryFile) {
+            if ($directoryFile->isFile()) {
+                if ($extension === '*') {
+                    array_push($result, $directoryFile->getFilename());
+                } elseif (preg_match('/\.' . $extension . '$/ui', $directoryFile->getFilename())) {
+                    if ( ! in_array($directoryFile->getRealPath(), $result)) {
+                        array_push($result, $directoryFile->getRealPath());
                     }
                 }
             }
@@ -215,26 +216,27 @@ class Directory extends SplDirectoryInfo
      * Directory::findFilesByFilename
      *
      * Find Files By Filename
-     * 
+     *
      * @param  string $filename
+     *
      * @return array
      */
-    public function findFilesByFilename( $filename )
+    public function findFilesByFilename($filename)
     {
         $directoryIterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator( $this->getRealPath() ),
+            new \RecursiveDirectoryIterator($this->getRealPath()),
             \RecursiveIteratorIterator::SELF_FIRST
         );
 
         $result = [];
 
-        foreach ( $directoryIterator as $directoryFile ) {
-            if ( $directoryFile->isFile() ) {
-                if ( preg_match( '/\\' . $filename . '.*/ui', $directoryFile->getFilename() ) OR
-                    preg_match( '/\\' . ucfirst( $filename ) . '.*/ui', $directoryFile->getFilename() )
+        foreach ($directoryIterator as $directoryFile) {
+            if ($directoryFile->isFile()) {
+                if (preg_match('/\\' . $filename . '.*/ui', $directoryFile->getFilename()) OR
+                    preg_match('/\\' . ucfirst($filename) . '.*/ui', $directoryFile->getFilename())
                 ) {
-                    if ( ! in_array( $directoryFile->getRealPath(), $result ) ) {
-                        array_push( $result, $directoryFile->getRealPath() );
+                    if ( ! in_array($directoryFile->getRealPath(), $result)) {
+                        array_push($result, $directoryFile->getRealPath());
                     }
                 }
             }

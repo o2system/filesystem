@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Filesystem\Handlers;
@@ -62,8 +63,8 @@ class Ftp
     public function __construct()
     {
         language()
-            ->addFilePath( str_replace( 'Handlers', '', __DIR__ ) . DIRECTORY_SEPARATOR )
-            ->loadFile( 'ftp' );
+            ->addFilePath(str_replace('Handlers', '', __DIR__) . DIRECTORY_SEPARATOR)
+            ->loadFile('ftp');
     }
 
     // --------------------------------------------------------------------
@@ -78,33 +79,33 @@ class Ftp
      * @return bool Returns TRUE on success or FALSE on failure.
      * @throws RuntimeException
      */
-    public function connect( array $config = [] )
+    public function connect(array $config = [])
     {
         // Prep the port
-        $config[ 'port' ] = empty( $config[ 'port' ] ) ? 21 : (int)$config[ 'port' ];
+        $config[ 'port' ] = empty($config[ 'port' ]) ? 21 : (int)$config[ 'port' ];
 
         // Prep the hostname
-        $config[ 'hostname' ] = preg_replace( '|.+?://|', '', $config[ 'hostname' ] );
+        $config[ 'hostname' ] = preg_replace('|.+?://|', '', $config[ 'hostname' ]);
 
-        if ( false === ( $this->handle = @ftp_connect( $config[ 'hostname' ], $config[ 'port' ] ) ) ) {
-            if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'FTP_E_UNABLE_TO_CONNECT' );
+        if (false === ($this->handle = @ftp_connect($config[ 'hostname' ], $config[ 'port' ]))) {
+            if ($this->debugMode === true) {
+                throw new RuntimeException('FTP_E_UNABLE_TO_CONNECT');
             }
 
             return false;
         }
 
-        if ( false !== ( @ftp_login( $this->handle, $config[ 'username' ], $config[ 'password' ] ) ) ) {
-            if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'FTP_E_UNABLE_TO_LOGIN' );
+        if (false !== (@ftp_login($this->handle, $config[ 'username' ], $config[ 'password' ]))) {
+            if ($this->debugMode === true) {
+                throw new RuntimeException('FTP_E_UNABLE_TO_LOGIN');
             }
 
             return false;
         }
 
         // Set passive mode if needed
-        if ( $this->passiveMode === true ) {
-            ftp_pasv( $this->handle, true );
+        if ($this->passiveMode === true) {
+            ftp_pasv($this->handle, true);
         }
 
         $this->config = $config;
@@ -126,26 +127,26 @@ class Ftp
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function download( $remoteFilePath, $localFilePath, $mode = 'auto' )
+    public function download($remoteFilePath, $localFilePath, $mode = 'auto')
     {
-        if ( ! $this->isConnected() ) {
+        if ( ! $this->isConnected()) {
             return false;
         }
 
         // Set the mode if not specified
-        if ( $mode === 'auto' ) {
+        if ($mode === 'auto') {
             // Get the file extension so we can set the upload type
-            $ext = $this->getExtension( $remoteFilePath );
-            $mode = $this->getTransferMode( $ext );
+            $ext = $this->getExtension($remoteFilePath);
+            $mode = $this->getTransferMode($ext);
         }
 
-        $mode = ( $mode === 'ascii' ) ? FTP_ASCII : FTP_BINARY;
+        $mode = ($mode === 'ascii') ? FTP_ASCII : FTP_BINARY;
 
-        $result = @ftp_get( $this->handle, $localFilePath, $remoteFilePath, $mode );
+        $result = @ftp_get($this->handle, $localFilePath, $remoteFilePath, $mode);
 
-        if ( $result === false ) {
-            if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'FTP_E_UNABLE_TO_DOWNLOAD' );
+        if ($result === false) {
+            if ($this->debugMode === true) {
+                throw new RuntimeException('FTP_E_UNABLE_TO_DOWNLOAD');
             }
 
             return false;
@@ -166,9 +167,9 @@ class Ftp
      */
     protected function isConnected()
     {
-        if ( ! is_resource( $this->handle ) ) {
-            if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'FTP_E_NO_CONNECTION' );
+        if ( ! is_resource($this->handle)) {
+            if ($this->debugMode === true) {
+                throw new RuntimeException('FTP_E_NO_CONNECTION');
             }
 
             return false;
@@ -188,11 +189,11 @@ class Ftp
      *
      * @return  string By default it's set into txt file extension.
      */
-    protected function getExtension( $filename )
+    protected function getExtension($filename)
     {
-        return ( ( $dot = strrpos( $filename, '.' ) ) === false )
+        return (($dot = strrpos($filename, '.')) === false)
             ? 'txt'
-            : substr( $filename, $dot + 1 );
+            : substr($filename, $dot + 1);
     }
 
     // --------------------------------------------------------------------
@@ -206,11 +207,11 @@ class Ftp
      *
      * @return  string By default it's set into ascii mode.
      */
-    protected function getTransferMode( $ext )
+    protected function getTransferMode($ext)
     {
         return in_array(
             $ext,
-            [ 'txt', 'text', 'php', 'phps', 'php4', 'js', 'css', 'htm', 'html', 'phtml', 'shtml', 'log', 'xml' ],
+            ['txt', 'text', 'php', 'phps', 'php4', 'js', 'css', 'htm', 'html', 'phtml', 'shtml', 'log', 'xml'],
             true
         )
             ? 'ascii'
@@ -230,17 +231,17 @@ class Ftp
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function rename( $oldFilename, $newFilename )
+    public function rename($oldFilename, $newFilename)
     {
-        if ( ! $this->isConnected() ) {
+        if ( ! $this->isConnected()) {
             return false;
         }
 
-        $result = @ftp_rename( $this->handle, $oldFilename, $newFilename );
+        $result = @ftp_rename($this->handle, $oldFilename, $newFilename);
 
-        if ( $result === false ) {
-            if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'FTP_UNABLE_TO_RENAME' );
+        if ($result === false) {
+            if ($this->debugMode === true) {
+                throw new RuntimeException('FTP_UNABLE_TO_RENAME');
             }
 
             return false;
@@ -262,17 +263,17 @@ class Ftp
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function move( $oldRemoteFilePath, $newRemoteFilePath )
+    public function move($oldRemoteFilePath, $newRemoteFilePath)
     {
-        if ( ! $this->isConnected() ) {
+        if ( ! $this->isConnected()) {
             return false;
         }
 
-        $result = @ftp_rename( $this->handle, $oldRemoteFilePath, $newRemoteFilePath );
+        $result = @ftp_rename($this->handle, $oldRemoteFilePath, $newRemoteFilePath);
 
-        if ( $result === false ) {
-            if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'FTP_UNABLE_TO_MOVE' );
+        if ($result === false) {
+            if ($this->debugMode === true) {
+                throw new RuntimeException('FTP_UNABLE_TO_MOVE');
             }
 
             return false;
@@ -293,17 +294,17 @@ class Ftp
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function deleteFile( $filePath )
+    public function deleteFile($filePath)
     {
-        if ( ! $this->isConnected() ) {
+        if ( ! $this->isConnected()) {
             return false;
         }
 
-        $result = @ftp_delete( $this->handle, $filePath );
+        $result = @ftp_delete($this->handle, $filePath);
 
-        if ( $result === false ) {
-            if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'FTP_E_UNABLE_TO_DELETE' );
+        if ($result === false) {
+            if ($this->debugMode === true) {
+                throw new RuntimeException('FTP_E_UNABLE_TO_DELETE');
             }
 
             return false;
@@ -325,29 +326,29 @@ class Ftp
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function deleteDir( $remotePath )
+    public function deleteDir($remotePath)
     {
-        if ( ! $this->isConnected() ) {
+        if ( ! $this->isConnected()) {
             return false;
         }
 
         // Add a trailing slash to the file path if needed
-        $remotePath = preg_replace( '/(.+?)\/*$/', '\\1/', $remotePath );
+        $remotePath = preg_replace('/(.+?)\/*$/', '\\1/', $remotePath);
 
-        $list = $this->getFiles( $remotePath );
-        if ( ! empty( $list ) ) {
-            for ( $i = 0, $c = count( $list ); $i < $c; $i++ ) {
+        $list = $this->getFiles($remotePath);
+        if ( ! empty($list)) {
+            for ($i = 0, $c = count($list); $i < $c; $i++) {
                 // If we can't delete the item it's probaly a directory,
                 // so we'll recursively call delete_dir()
-                if ( ! preg_match( '#/\.\.?$#', $list[ $i ] ) && ! @ftp_delete( $this->handle, $list[ $i ] ) ) {
-                    $this->deleteDir( $list[ $i ] );
+                if ( ! preg_match('#/\.\.?$#', $list[ $i ]) && ! @ftp_delete($this->handle, $list[ $i ])) {
+                    $this->deleteDir($list[ $i ]);
                 }
             }
         }
 
-        if ( @ftp_rmdir( $this->handle, $remotePath ) === false ) {
-            if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'FTP_E_UNABLE_TO_DELETE_DIRECTORY' );
+        if (@ftp_rmdir($this->handle, $remotePath) === false) {
+            if ($this->debugMode === true) {
+                throw new RuntimeException('FTP_E_UNABLE_TO_DELETE_DIRECTORY');
             }
 
             return false;
@@ -368,10 +369,10 @@ class Ftp
      * @return  array|bool Returns array of files list or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function getFiles( $remotePath = '.' )
+    public function getFiles($remotePath = '.')
     {
         return $this->isConnected()
-            ? ftp_nlist( $this->handle, $remotePath )
+            ? ftp_nlist($this->handle, $remotePath)
             : false;
     }
 
@@ -393,32 +394,32 @@ class Ftp
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function mirror( $localPath, $remotePath )
+    public function mirror($localPath, $remotePath)
     {
-        if ( ! $this->isConnected() ) {
+        if ( ! $this->isConnected()) {
             return false;
         }
 
         // Open the local file path
-        if ( $fp = @opendir( $localPath ) ) {
+        if ($fp = @opendir($localPath)) {
             // Attempt to open the remote file path and try to create it, if it doesn't exist
-            if ( ! $this->changeDir( $remotePath, true ) && ( ! $this->makeDir( $remotePath ) OR ! $this->changeDir(
+            if ( ! $this->changeDir($remotePath, true) && ( ! $this->makeDir($remotePath) OR ! $this->changeDir(
                         $remotePath
-                    ) )
+                    ))
             ) {
                 return false;
             }
 
             // Recursively read the local directory
-            while ( false !== ( $file = readdir( $fp ) ) ) {
-                if ( is_dir( $localPath . $file ) && $file[ 0 ] !== '.' ) {
-                    $this->mirror( $localPath . $file . '/', $remotePath . $file . '/' );
-                } elseif ( $file[ 0 ] !== '.' ) {
+            while (false !== ($file = readdir($fp))) {
+                if (is_dir($localPath . $file) && $file[ 0 ] !== '.') {
+                    $this->mirror($localPath . $file . '/', $remotePath . $file . '/');
+                } elseif ($file[ 0 ] !== '.') {
                     // Get the file extension so we can se the upload type
-                    $ext = $this->getExtension( $file );
-                    $mode = $this->getTransferMode( $ext );
+                    $ext = $this->getExtension($file);
+                    $mode = $this->getTransferMode($ext);
 
-                    $this->upload( $localPath . $file, $remotePath . $file, $mode );
+                    $this->upload($localPath . $file, $remotePath . $file, $mode);
                 }
             }
 
@@ -445,17 +446,17 @@ class Ftp
      * @return  bool  Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function changeDir( $remotePath, $suppressDebug = false )
+    public function changeDir($remotePath, $suppressDebug = false)
     {
-        if ( ! $this->isConnected() ) {
+        if ( ! $this->isConnected()) {
             return false;
         }
 
-        $result = @ftp_chdir( $this->handle, $remotePath );
+        $result = @ftp_chdir($this->handle, $remotePath);
 
-        if ( $result === false ) {
-            if ( $this->debugMode === true AND $suppressDebug === false ) {
-                throw new RuntimeException( 'FTP_E_UNABLE_TO_CHANGE_DIRECTORY' );
+        if ($result === false) {
+            if ($this->debugMode === true AND $suppressDebug === false) {
+                throw new RuntimeException('FTP_E_UNABLE_TO_CHANGE_DIRECTORY');
             }
 
             return false;
@@ -477,25 +478,25 @@ class Ftp
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function makeDir( $remotePath, $permissions = null )
+    public function makeDir($remotePath, $permissions = null)
     {
-        if ( $remotePath === '' OR ! $this->isConnected() ) {
+        if ($remotePath === '' OR ! $this->isConnected()) {
             return false;
         }
 
-        $result = @ftp_mkdir( $this->handle, $remotePath );
+        $result = @ftp_mkdir($this->handle, $remotePath);
 
-        if ( $result === false ) {
-            if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'FTP_E_UNABLE_TO_MAKE_DIRECTORY' );
+        if ($result === false) {
+            if ($this->debugMode === true) {
+                throw new RuntimeException('FTP_E_UNABLE_TO_MAKE_DIRECTORY');
             }
 
             return false;
         }
 
         // Set file permissions if needed
-        if ( $permissions !== null ) {
-            $this->setChmod( $remotePath, (int)$permissions );
+        if ($permissions !== null) {
+            $this->setChmod($remotePath, (int)$permissions);
         }
 
         return true;
@@ -514,15 +515,15 @@ class Ftp
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function setChmod( $remotePath, $mode )
+    public function setChmod($remotePath, $mode)
     {
-        if ( ! $this->isConnected() ) {
+        if ( ! $this->isConnected()) {
             return false;
         }
 
-        if ( @ftp_chmod( $this->handle, $mode, $remotePath ) === false ) {
-            if ( $this->debugMode === true ) {
-                throw new RuntimeException( 'FTP_E_UNABLE_TO_CHMOD' );
+        if (@ftp_chmod($this->handle, $mode, $remotePath) === false) {
+            if ($this->debugMode === true) {
+                throw new RuntimeException('FTP_E_UNABLE_TO_CHMOD');
             }
 
             return false;
@@ -546,35 +547,35 @@ class Ftp
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function upload( $localFilePath, $remoteFilePath, $mode = 'auto', $permissions = null )
+    public function upload($localFilePath, $remoteFilePath, $mode = 'auto', $permissions = null)
     {
-        if ( ! $this->isConnected() ) {
+        if ( ! $this->isConnected()) {
             return false;
         }
 
-        if ( is_file( $localFilePath ) ) {
+        if (is_file($localFilePath)) {
             // Set the mode if not specified
-            if ( $mode === 'auto' ) {
+            if ($mode === 'auto') {
                 // Get the file extension so we can set the upload type
-                $ext = $this->getExtension( $localFilePath );
-                $mode = $this->getTransferMode( $ext );
+                $ext = $this->getExtension($localFilePath);
+                $mode = $this->getTransferMode($ext);
             }
 
-            $mode = ( $mode === 'ascii' ) ? FTP_ASCII : FTP_BINARY;
+            $mode = ($mode === 'ascii') ? FTP_ASCII : FTP_BINARY;
 
-            $result = @ftp_put( $this->handle, $remoteFilePath, $localFilePath, $mode );
+            $result = @ftp_put($this->handle, $remoteFilePath, $localFilePath, $mode);
 
-            if ( $result === false ) {
-                if ( $this->debugMode === true ) {
-                    throw new RuntimeException( 'FTP_E_UNABLE_TO_UPLOAD' );
+            if ($result === false) {
+                if ($this->debugMode === true) {
+                    throw new RuntimeException('FTP_E_UNABLE_TO_UPLOAD');
                 }
 
                 return false;
             }
 
             // Set file permissions if needed
-            if ( $permissions !== null ) {
-                $this->setChmod( $remoteFilePath, (int)$permissions );
+            if ($permissions !== null) {
+                $this->setChmod($remoteFilePath, (int)$permissions);
             }
 
             return true;
@@ -596,7 +597,7 @@ class Ftp
     public function close()
     {
         return $this->isConnected()
-            ? @ftp_close( $this->handle )
+            ? @ftp_close($this->handle)
             : false;
     }
 }
