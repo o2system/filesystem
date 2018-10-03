@@ -447,10 +447,16 @@ class Uploader
 
     protected function move(UploadFile $file, $targetPath)
     {
+        $fileInfo = [
+            'name' => $file->getClientFilename(),
+            'mime' => $file->getFileMime(),
+            'size' => $file->getSize()
+        ];
+
         $file->moveTo($targetPath);
 
         if ( ! $file->getError()) {
-            $this->uploadedFiles[] = pathinfo($targetPath, PATHINFO_BASENAME);
+            $this->uploadedFiles[] = $fileInfo;
         } else {
             $this->errors[] = $file->getError();
         }
