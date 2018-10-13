@@ -325,6 +325,12 @@ class Uploader
 
                     $targetPath = $this->path;
 
+                    if ( ! is_writable($targetPath)) {
+                        if ( ! file_exists($targetPath)) {
+                            mkdir($targetPath, 0777, true);
+                        }
+                    }
+
                     if (empty($this->targetFilename)) {
                         $this->setTargetFilename($file->getClientFilename());
                     }
@@ -448,7 +454,8 @@ class Uploader
     protected function move(UploadFile $file, $targetPath)
     {
         $fileInfo = [
-            'name' => $file->getClientFilename(),
+            'name' => pathinfo($targetPath, PATHINFO_BASENAME),
+            'path' => $targetPath,
             'mime' => $file->getFileMime(),
             'size' => $file->getSize()
         ];
