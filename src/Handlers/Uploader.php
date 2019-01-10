@@ -325,12 +325,6 @@ class Uploader
 
                     $targetPath = $this->path;
 
-                    if ( ! is_writable($targetPath)) {
-                        if ( ! file_exists($targetPath)) {
-                            mkdir($targetPath, 0777, true);
-                        }
-                    }
-
                     if (empty($this->targetFilename)) {
                         $this->setTargetFilename($file->getClientFilename());
                     }
