@@ -1,3 +1,18 @@
+<div align="center" markdown="1">
+
+[![O2System Framework](http://o2system.id/assets/img/logo/logo-white-200px.png?logo)](http://o2system.id)
+</div>
+
+<div align="center" markdown="1">
+
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/o2system/filesystem/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/o2system/filesystem/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/o2system/filesystem/badges/build.png?b=master)](https://scrutinizer-ci.com/g/o2system/filesystem/build-status/master)
+[![Latest Stable Version](https://poser.pugx.org/o2system/filesystem/v/stable)](https://packagist.org/packages/o2system/filesystem)
+[![Total Downloads](https://poser.pugx.org/o2system/filesystem/downloads)](https://packagist.org/packages/o2system/filesystem)
+[![License](https://poser.pugx.org/o2system/filesystem/license)](https://packagist.org/packages/o2system/filesystem)
+
+</div>
+
 # O2System Filesystem
 O2System Filesystem is an Open Source PHP Convenience Library for reading, writing and appending data from and into files and directories, which is built for working more powerfully with O2System Framework, but it also can be used with other frameworks as a standalone version with limited features.
 
