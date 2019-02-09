@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -96,7 +96,6 @@ class Uploader
      * @param array $config
      *
      * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
-     * @throws \O2System\Spl\Exceptions\Logic\InvalidArgumentException
      */
     public function __construct(array $config = [])
     {
@@ -140,6 +139,8 @@ class Uploader
 
         $this->uploadedFiles = new ArrayIterator();
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * Uploader::setAllowedMimes
@@ -396,6 +397,15 @@ class Uploader
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Uploader::validate
+     *
+     * @param \O2System\Kernel\Http\Message\UploadFile $file
+     *
+     * @return bool
+     */
     protected function validate(UploadFile $file)
     {
         /* Validate extension */
@@ -445,13 +455,21 @@ class Uploader
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Uploader::mode
+     *
+     * @param \O2System\Kernel\Http\Message\UploadFile $file
+     * @param                                          $targetPath
+     */
     protected function move(UploadFile $file, $targetPath)
     {
         $fileInfo = [
             'name' => pathinfo($targetPath, PATHINFO_BASENAME),
             'path' => $targetPath,
             'mime' => $file->getFileMime(),
-            'size' => $file->getSize()
+            'size' => $file->getSize(),
         ];
 
         $file->moveTo($targetPath);
@@ -463,6 +481,13 @@ class Uploader
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Uploader::getUploadedFiles
+     *
+     * @return array|\O2System\Spl\Iterators\ArrayIterator
+     */
     public function getUploadedFiles()
     {
         return $this->uploadedFiles;
