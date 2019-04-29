@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -30,6 +30,7 @@ class Ftp
      * @var    bool
      */
     public $passiveMode = true;
+
     /**
      * Debug flag
      *
@@ -38,6 +39,7 @@ class Ftp
      * @var    bool
      */
     public $debugMode = false;
+
     /**
      * Ftp::$config
      *

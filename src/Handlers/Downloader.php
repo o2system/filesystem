@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,26 +25,125 @@ use O2System\Filesystem\File;
 class Downloader
 {
     /**
-     * Constants for Download Modes
+     * Downloader::MODE_FILESTREAM
+     *
+     * @var int
      */
     const MODE_FILESTREAM = 1;
+
+    /**
+     * Downloader::MODE_DATASTREAM
+     *
+     * @var int
+     */
     const MODE_DATASTREAM = 2;
 
+    /**
+     * Downloader::$mode
+     *
+     * @var int
+     */
     protected $mode = 1;
+
+    /**
+     * Downloader::$filedata
+     *
+     * @var string
+     */
     protected $filedata;
+
+    /**
+     * Downloader::$fileinfo
+     *
+     * @var array
+     */
     protected $fileinfo;
+
+    /**
+     * Downloader::$filesize
+     *
+     * @var int
+     */
     protected $filesize;
+
+    /**
+     * Downloader::$filemime
+     *
+     * @var string
+     */
     protected $filemime;
+
+    /**
+     * Downloader::$lastModified
+     *
+     * @var int
+     */
     protected $lastModified;
+
+    /**
+     * Downloader::$resumeable
+     *
+     * @var bool
+     */
     protected $resumeable = true;
+
+    /**
+     * Downloader::$partialRequest
+     *
+     * @var bool
+     */
     protected $partialRequest = true;
+
+    /**
+     * Downloader::$seekStart
+     *
+     * @var int
+     */
     protected $seekStart = 0;
+
+    /**
+     * Downloader::$seekEnd
+     *
+     * @var int
+     */
     protected $seekEnd;
-    protected $seekFilesize;
-    protected $downloadedFilesize = 0;
+
+    /**
+     * Downloader::$seekFileSize
+     *
+     * @var int
+     */
+    protected $seekFileSize;
+
+    /**
+     * Downloader::$downloadedFileSize
+     *
+     * @var int
+     */
+    protected $downloadedFileSize = 0;
+
+    /**
+     * Downloader::$speedLimit
+     *
+     * @var int
+     */
     protected $speedLimit = 512;
+
+    /**
+     * Downloader::$bufferSize
+     *
+     * @var int
+     */
     protected $bufferSize = 2048;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Downloader::__construct
+     *
+     * @param string $filePath
+     * @param int    $mode
+     */
     public function __construct($filePath, $mode = self::MODE_FILESTREAM)
     {
         global $HTTP_SERVER_VARS;
@@ -115,15 +214,24 @@ class Downloader
             $range = explode('-', $range, 3);
             $this->seekStart = ($range[ 0 ] > 0 && $range[ 0 ] < $this->filesize - 1) ? $range[ 0 ] : 0;
             $this->seekEnd = ($range[ 1 ] > 0 && $range[ 1 ] < $this->filesize && $range[ 1 ] > $this->seekStart) ? $range[ 1 ] : $this->filesize - 1;
-            $this->seekFilesize = $this->seekEnd - $this->seekStart + 1;
+            $this->seekFileSize = $this->seekEnd - $this->seekStart + 1;
         } else {
             $this->partialRequest = false;
             $this->seekStart = 0;
             $this->seekEnd = $this->filesize - 1;
-            $this->seekFilesize = $this->filesize;
+            $this->seekFileSize = $this->filesize;
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Downloader::getMime
+     *
+     * @param string $filePath
+     *
+     * @return string
+     */
     private function getMime($filePath)
     {
         $file = new File($filePath);
@@ -136,6 +244,14 @@ class Downloader
         return $mime;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Downloader::forceDownload
+     *
+     * @param string|null $filename
+     * @param string      $filemime
+     */
     public function forceDownload($filename = null, $filemime = 'application/octet-stream')
     {
         // Force mime
@@ -143,6 +259,13 @@ class Downloader
         $this->download($filename);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Downloader::download
+     *
+     * @param string|null $filename
+     */
     public function download($filename = null)
     {
         $filename = isset($filename) ? $filename : $this->fileinfo[ 'basename' ];
@@ -161,7 +284,7 @@ class Downloader
                 // Turn off resume capability
                 $this->seekStart = 0;
                 $this->seekEnd = $this->filesize - 1;
-                $this->seekFilesize = $this->filesize;
+                $this->seekFileSize = $this->filesize;
             }
         }
 
@@ -169,7 +292,7 @@ class Downloader
         output()
             ->sendHeader('Content-Type', $this->filemime)
             ->sendHeader('Content-Disposition', 'attachment; filename=' . $filename)
-            ->sendHeader('Content-Length', $this->seekFilesize)
+            ->sendHeader('Content-Length', $this->seekFileSize)
             ->sendHeader('Last-Modified', date('D, d M Y H:i:s \G\M\T', $this->lastModified));
         // End Headers Stage
 
@@ -198,7 +321,7 @@ class Downloader
         // Download According Download Mode
         if ($this->mode === self::MODE_FILESTREAM) {
             // Download Data by fopen
-            $downloadFileBytes = $this->seekFilesize;
+            $downloadFileBytes = $this->seekFileSize;
             $downloaded = 0;
             // goto the position of the first byte to download
             fseek($this->filedata, $this->seekStart);
@@ -233,7 +356,7 @@ class Downloader
             fclose($this->filedata);
         } elseif ($this->mode === self::MODE_DATASTREAM) {
             // Download Data String
-            $downloadFileBytes = $this->seekFilesize;
+            $downloadFileBytes = $this->seekFileSize;
 
             $downloaded = 0;
             $offset = $this->seekStart;
@@ -262,13 +385,22 @@ class Downloader
         }
 
         // Set Downloaded Bytes
-        $this->downloadedFilesize = $downloaded;
+        $this->downloadedFileSize = $downloaded;
         ignore_user_abort($oldUserAbortSetting); // Restore old user abort settings
         set_time_limit(ini_get('max_execution_time')); // Restore Default script max execution Time
 
         exit;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Downloader::resumeable
+     *
+     * @param bool $status
+     *
+     * @return static
+     */
     public function resumeable($status = true)
     {
         $this->partialRequest = $this->resumeable = ( bool )$status;
@@ -276,6 +408,15 @@ class Downloader
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Downloader::speedLimit
+     *
+     * @param int $limit
+     *
+     * @return static
+     */
     public function speedLimit($limit)
     {
         $limit = intval($limit);

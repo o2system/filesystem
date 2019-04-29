@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -109,7 +109,7 @@ class System
     // ------------------------------------------------------------------------
 
     /**
-     * System::getPHPSapi
+     * System::getPhpSapi
      *
      * Returns a lowercase string that describes the type of interface (the Server API, SAPI) that PHP is using. For
      * example, in CLI PHP this string will be "cli" whereas with Apache it may have several different values depending
@@ -322,6 +322,4 @@ class System
 
         return $numCpus;
     }
-
-    // ------------------------------------------------------------------------
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -35,7 +35,7 @@ class IniFile extends AbstractFile
      *
      * @return mixed
      */
-    public function readFile($filePath, array $options = [])
+    public function readFile($filePath = null, array $options = [])
     {
         $items = parse_ini_file(
             $filePath,
