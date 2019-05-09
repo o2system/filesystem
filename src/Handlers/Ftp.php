@@ -16,6 +16,8 @@ namespace O2System\Filesystem\Handlers;
 // ------------------------------------------------------------------------
 
 use O2System\Spl\Exceptions\RuntimeException;
+use O2System\Spl\Traits\Collectors\ConfigCollectorTrait;
+use O2System\Spl\Traits\Collectors\ErrorCollectorTrait;
 
 /**
  * Class Ftp
@@ -24,6 +26,9 @@ use O2System\Spl\Exceptions\RuntimeException;
  */
 class Ftp
 {
+    use ConfigCollectorTrait;
+    use ErrorCollectorTrait;
+
     /**
      * Passive mode flag
      *
@@ -62,8 +67,16 @@ class Ftp
     /**
      * Ftp::__construct
      */
-    public function __construct()
+    public function __construct(array $config = [])
     {
+        $this->setConfig($config);
+
+        // Prep the port
+        $this->config[ 'port' ] = empty($this->config[ 'port' ]) ? 21 : (int)$this->config[ 'port' ];
+
+        // Prep the hostname
+        $this->config[ 'hostname' ] = preg_replace('|.+?://|', '', $this->config[ 'hostname' ]);
+
         language()
             ->addFilePath(str_replace('Handlers', '', __DIR__) . DIRECTORY_SEPARATOR)
             ->loadFile('ftp');
@@ -76,31 +89,27 @@ class Ftp
      *
      * Connect to FTP server.
      *
-     * @param array $config Ftp configuration.
-     *
      * @return bool Returns TRUE on success or FALSE on failure.
      * @throws RuntimeException
      */
-    public function connect(array $config = [])
+    public function connect()
     {
-        // Prep the port
-        $config[ 'port' ] = empty($config[ 'port' ]) ? 21 : (int)$config[ 'port' ];
-
-        // Prep the hostname
-        $config[ 'hostname' ] = preg_replace('|.+?://|', '', $config[ 'hostname' ]);
-
-        if (false === ($this->handle = @ftp_connect($config[ 'hostname' ], $config[ 'port' ]))) {
+        if (false === ($this->handle = @ftp_connect($this->config[ 'hostname' ], $this->config[ 'port' ]))) {
             if ($this->debugMode === true) {
                 throw new RuntimeException('FTP_E_UNABLE_TO_CONNECT');
             }
 
+            $this->addError(1, 'FTP_E_UNABLE_TO_CONNECT');
+
             return false;
         }
 
-        if (false !== (@ftp_login($this->handle, $config[ 'username' ], $config[ 'password' ]))) {
+        if (false !== (@ftp_login($this->handle, $this->config[ 'username' ], $this->config[ 'password' ]))) {
             if ($this->debugMode === true) {
                 throw new RuntimeException('FTP_E_UNABLE_TO_LOGIN');
             }
+
+            $this->addError(2, 'FTP_E_UNABLE_TO_LOGIN');
 
             return false;
         }
@@ -109,8 +118,6 @@ class Ftp
         if ($this->passiveMode === true) {
             ftp_pasv($this->handle, true);
         }
-
-        $this->config = $config;
 
         return true;
     }
@@ -151,6 +158,8 @@ class Ftp
                 throw new RuntimeException('FTP_E_UNABLE_TO_DOWNLOAD');
             }
 
+            $this->addError(3, 'FTP_E_UNABLE_TO_DOWNLOAD');
+
             return false;
         }
 
@@ -173,6 +182,8 @@ class Ftp
             if ($this->debugMode === true) {
                 throw new RuntimeException('FTP_E_NO_CONNECTION');
             }
+
+            $this->addError(4, 'FTP_E_NO_CONNECTION');
 
             return false;
         }
@@ -246,6 +257,8 @@ class Ftp
                 throw new RuntimeException('FTP_UNABLE_TO_RENAME');
             }
 
+            $this->addError(5, 'FTP_UNABLE_TO_RENAME');
+
             return false;
         }
 
@@ -278,6 +291,8 @@ class Ftp
                 throw new RuntimeException('FTP_UNABLE_TO_MOVE');
             }
 
+            $this->addError(6, 'FTP_UNABLE_TO_MOVE');
+
             return false;
         }
 
@@ -308,6 +323,8 @@ class Ftp
             if ($this->debugMode === true) {
                 throw new RuntimeException('FTP_E_UNABLE_TO_DELETE');
             }
+
+            $this->addError(7, 'FTP_E_UNABLE_TO_DELETE');
 
             return false;
         }
@@ -352,6 +369,8 @@ class Ftp
             if ($this->debugMode === true) {
                 throw new RuntimeException('FTP_E_UNABLE_TO_DELETE_DIRECTORY');
             }
+
+            $this->addError(8, 'FTP_E_UNABLE_TO_DELETE_DIRECTORY');
 
             return false;
         }
@@ -461,6 +480,8 @@ class Ftp
                 throw new RuntimeException('FTP_E_UNABLE_TO_CHANGE_DIRECTORY');
             }
 
+            $this->addError(9, 'FTP_E_UNABLE_TO_CHANGE_DIRECTORY');
+
             return false;
         }
 
@@ -492,6 +513,8 @@ class Ftp
             if ($this->debugMode === true) {
                 throw new RuntimeException('FTP_E_UNABLE_TO_MAKE_DIRECTORY');
             }
+
+            $this->addError(10, 'FTP_E_UNABLE_TO_MAKE_DIRECTORY');
 
             return false;
         }
@@ -527,6 +550,8 @@ class Ftp
             if ($this->debugMode === true) {
                 throw new RuntimeException('FTP_E_UNABLE_TO_CHMOD');
             }
+
+            $this->addError(11, 'FTP_E_UNABLE_TO_CHMOD');
 
             return false;
         }
@@ -571,6 +596,8 @@ class Ftp
                 if ($this->debugMode === true) {
                     throw new RuntimeException('FTP_E_UNABLE_TO_UPLOAD');
                 }
+
+                $this->addError(12, 'FTP_E_UNABLE_TO_UPLOAD');
 
                 return false;
             }

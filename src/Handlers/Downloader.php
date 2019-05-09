@@ -173,7 +173,7 @@ class Downloader
 
             $this->fileinfo = pathinfo($filePath);
             $this->filesize = filesize($filePath);
-            $this->filemime = $this->getMime($filePath);
+            $this->filemime = mime_content_type($filePath);
             $this->lastModified = filemtime($filePath);
 
         } elseif ($mode === self::MODE_DATASTREAM) {
@@ -191,7 +191,7 @@ class Downloader
             }
 
             $this->filesize = strlen($this->filedata);
-            $this->filemime = $this->getMime($this->fileinfo[ 'filename' ]);
+            $this->filemime = mime_content_type($this->fileinfo[ 'filename' ]);
             $this->lastModified = time();
 
         } else {
@@ -221,27 +221,6 @@ class Downloader
             $this->seekEnd = $this->filesize - 1;
             $this->seekFileSize = $this->filesize;
         }
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Downloader::getMime
-     *
-     * @param string $filePath
-     *
-     * @return string
-     */
-    private function getMime($filePath)
-    {
-        $file = new File($filePath);
-        $mime = $file->getMime();
-
-        if (is_array($mime)) {
-            $mime = reset($mime);
-        }
-
-        return $mime;
     }
 
     // ------------------------------------------------------------------------
