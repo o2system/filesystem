@@ -410,7 +410,7 @@ class Uploader
     {
         /* Validate extension */
         if (is_array($this->allowedExtensions) && count($this->allowedExtensions)) {
-            if ( ! in_array('.' . $file->getExtension(), $this->allowedExtensions)) {
+            if ( ! in_array($file->getExtension(), $this->allowedExtensions)) {
                 $this->errors[] = language()->getLine(
                     'UPLOADER_E_ALLOWED_EXTENSIONS',
                     [implode(',', $this->allowedExtensions), $file->getExtension()]
