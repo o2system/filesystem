@@ -439,7 +439,7 @@ class Uploader
         }
 
         /* Validate max size */
-        if ($this->allowedFileSize[ 'min' ] > 0) {
+        if ($this->allowedFileSize[ 'max' ] > 0) {
             if ($file->getSize() > $this->allowedFileSize[ 'max' ]) {
                 $this->errors[] = language()->getLine(
                     'UPLOADER_E_ALLOWED_MAX_FILESIZE',
