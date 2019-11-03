@@ -17,7 +17,7 @@ namespace O2System\Filesystem\Handlers;
 
 use O2System\Kernel\DataStructures\Input\Files;
 use O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException;
-use O2System\Spl\Iterators\ArrayIterator;
+
 
 /**
  * Class Uploader
