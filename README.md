@@ -1,4 +1,4 @@
-[![O2System Framework](http://o2system.id/assets/img/logo/logo-white-200px.png?logo)](http://o2system.id)
+![alt text](https://www.o2system.id/assets/img/covers/cover-o2system-atom-filesystem.png "O2System Filesystem Atom")
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/o2system/filesystem/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/o2system/filesystem/?branch=master)
 [![Build Status](https://scrutinizer-ci.com/g/o2system/filesystem/badges/build.png?b=master)](https://scrutinizer-ci.com/g/o2system/filesystem/build-status/master)
