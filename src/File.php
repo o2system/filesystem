@@ -15,6 +15,7 @@ namespace O2System\Filesystem;
 
 // ------------------------------------------------------------------------
 
+use O2System\Filesystem\Handlers\Stream;
 use O2System\Spl\Info\SplFileInfo;
 
 /**
@@ -447,5 +448,18 @@ class File extends SplFileInfo
         $params[] = $context;
 
         return call_user_func_array('unlink', $params);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * File::getStream
+     *
+     * @param string $mode
+     * @return Stream
+     */
+    public function getStream($mode = 'rb')
+    {
+        return new Stream($this, $mode);
     }
 }
