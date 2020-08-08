@@ -31,7 +31,7 @@ class File extends SplFileInfo
      * Path of File
      * @var String
      */
-    private $filePath;
+    private string $filePath;
 
     // ------------------------------------------------------------------------
 
@@ -262,9 +262,10 @@ class File extends SplFileInfo
      *
      * Get mime info based on MIME config.
      *
+     * @param bool $allPossibilities
      * @return bool|string|array
      */
-    public function getMime()
+    public function getMime($allPossibilities = false)
     {
         $mimes = $this->getMimes();
         $ext = strtolower($this->getExtension());
@@ -306,9 +307,9 @@ class File extends SplFileInfo
      *
      * Outputs a file.
      *
-     * @param bool     $useIncludePath You can use the optional second parameter and set it to TRUE, if you want to
+     * @param bool $useIncludePath You can use the optional second parameter and set it to TRUE, if you want to
      *                                 search for the file in the include_path, too.
-     * @param resource $context        A context stream resource.
+     * @param null $context A context stream resource.
      *
      * @return int  Returns the number of bytes read from the file. If an error occurs, FALSE is returned and unless
      *              the function was called as @readfile(), an error message is printed.
@@ -329,8 +330,9 @@ class File extends SplFileInfo
      *
      * Writes a file.
      *
+     * @param $filePath
      * @param string $contents File contents to write.
-     * @param string $mode     File handle mode.
+     * @param string $mode File handle mode.
      *
      * @return bool
      */
@@ -437,7 +439,7 @@ class File extends SplFileInfo
      *
      * Deletes a file.
      *
-     * @param resource $context Context support was added with PHP 5.0.0. For a description of contexts, refer to
+     * @param null $context Context support was added with PHP 5.0.0. For a description of contexts, refer to
      *                          Streams.
      *
      * @return bool Returns TRUE on success or FALSE on failure.

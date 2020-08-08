@@ -30,13 +30,22 @@
     "forum": "https://www.facebook.com/groups/498147006994512"
   },
   "require": {
-    "php": "^7.2.0",
+    "php": "^7.4",
     "ext-fileinfo": "*",
     "o2system/kernel": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.3",
+    "ext-posix": "*"
   },
   "autoload": {
     "psr-4": {
       "O2System\\Filesystem\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
     }
   }
 }
