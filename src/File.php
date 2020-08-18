@@ -140,17 +140,17 @@ class File extends SplFileInfo
      *
      * Reads entire file into a string.
      *
-     * @param bool     $useIncludePath As of PHP 5 the FILE_USE_INCLUDE_PATH constant can be used to trigger include
+     * @param bool $useIncludePath As of PHP 5 the FILE_USE_INCLUDE_PATH constant can be used to trigger include
      *                                 path search.
      *
-     * @param resource $context        A valid context resource created with stream_context_create(). If you don't need
+     * @param null $context A valid context resource created with stream_context_create(). If you don't need
      *                                 to use a custom context, you can skip this parameter by NULL.
      *
-     * @param int      $offset         The offset where the reading starts on the original stream. Negative offsets
+     * @param int $offset The offset where the reading starts on the original stream. Negative offsets
      *                                 count from the end of the stream. Seeking (offset) is not supported with remote
      *                                 files. Attempting to seek on non-local files may work with small offsets, but
      *                                 this is unpredictable because it works on the buffered stream.
-     * @param int      $maxlen         Maximum length of data read. The default is to read until end of file is
+     * @param int $maxlen Maximum length of data read. The default is to read until end of file is
      *                                 reached. Note that this parameter is applied to the stream processed by the
      *                                 filters.
      *
@@ -175,8 +175,8 @@ class File extends SplFileInfo
     /**
      * File::touch
      *
-     * @param int $time  The touch time. If time is not supplied, the current system time is used.
-     * @param int $atime If present, the access time of the given filename is set to the value of atime. Otherwise, it
+     * @param null $time The touch time. If time is not supplied, the current system time is used.
+     * @param null $atime If present, the access time of the given filename is set to the value of atime. Otherwise, it
      *                   is set to the value passed to the time parameter. If neither are present, the current system
      *                   time is used.
      *
@@ -417,9 +417,9 @@ class File extends SplFileInfo
      *
      * Makes a copy of the file source to destination.
      *
-     * @param string   $destination The destination path. If destination is a URL, the copy operation may fail if the
+     * @param string $destination The destination path. If destination is a URL, the copy operation may fail if the
      *                              wrapper does not support overwriting of existing files.
-     * @param resource $context     A valid context resource created with stream_context_create().
+     * @param null $context A valid context resource created with stream_context_create().
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
