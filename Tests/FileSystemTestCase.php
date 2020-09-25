@@ -7,9 +7,15 @@ use PHPUnit\Framework\TestCase;
 
 class FileSystemTestCase extends TestCase
 {
+    /**
+     * @var int
+     */
     private $umask;
 
-    protected $longPathNamesWindows = [];
+    /**
+     * @var array
+     */
+    protected array $longPathNamesWindows = [];
 
     /**
      * @var
@@ -31,6 +37,9 @@ class FileSystemTestCase extends TestCase
      */
     private static $symlinkOnWindows = null;
 
+    /**
+     *
+     */
     public static function setUpBeforeClass(): void
     {
         if ('\\' === \DIRECTORY_SEPARATOR) {
@@ -60,6 +69,9 @@ class FileSystemTestCase extends TestCase
         }
     }
 
+    /**
+     *
+     */
     protected function setUp(): void
     {
         $this->umask = umask(0);
@@ -69,6 +81,9 @@ class FileSystemTestCase extends TestCase
         $this->workspace = realpath($this->workspace);
     }
 
+    /**
+     *
+     */
     protected function tearDown(): void
     {
         if (!empty($this->longPathNamesWindows)) {
@@ -78,7 +93,6 @@ class FileSystemTestCase extends TestCase
             $this->longPathNamesWindows = [];
         }
 
-//        $this->filesystem->delete($this->workspace);
         umask($this->umask);
     }
 
@@ -96,6 +110,10 @@ class FileSystemTestCase extends TestCase
         );
     }
 
+    /**
+     * @param $filepath
+     * @return mixed
+     */
     protected function getFileOwnerId($filepath)
     {
         $this->markAsSkippedIfPosixIsMissing();
@@ -105,6 +123,10 @@ class FileSystemTestCase extends TestCase
         return $infos['uid'];
     }
 
+    /**
+     * @param $filepath
+     * @return mixed|null
+     */
     protected function getFileOwner($filepath)
     {
         $this->markAsSkippedIfPosixIsMissing();
@@ -112,6 +134,10 @@ class FileSystemTestCase extends TestCase
         return ($datas = posix_getpwuid($this->getFileOwnerId($filepath))) ? $datas['name'] : null;
     }
 
+    /**
+     * @param $filepath
+     * @return mixed
+     */
     protected function getFileGroupId($filepath)
     {
         $this->markAsSkippedIfPosixIsMissing();
@@ -121,6 +147,10 @@ class FileSystemTestCase extends TestCase
         return $infos['gid'];
     }
 
+    /**
+     * @param $filepath
+     * @return mixed
+     */
     protected function getFileGroup($filepath)
     {
         $this->markAsSkippedIfPosixIsMissing();
@@ -132,6 +162,9 @@ class FileSystemTestCase extends TestCase
         $this->markTestSkipped('Unable to retrieve file group name');
     }
 
+    /**
+     *
+     */
     protected function markAsSkippedIfLinkIsMissing()
     {
         if (!\function_exists('link')) {
@@ -143,6 +176,9 @@ class FileSystemTestCase extends TestCase
         }
     }
 
+    /**
+     * @param false $relative
+     */
     protected function markAsSkippedIfSymlinkIsMissing($relative = false)
     {
         if ('\\' === \DIRECTORY_SEPARATOR && false === self::$symlinkOnWindows) {
@@ -155,6 +191,9 @@ class FileSystemTestCase extends TestCase
         }
     }
 
+    /**
+     *
+     */
     protected function markAsSkippedIfChmodIsMissing()
     {
         if ('\\' === \DIRECTORY_SEPARATOR) {
@@ -162,6 +201,9 @@ class FileSystemTestCase extends TestCase
         }
     }
 
+    /**
+     *
+     */
     protected function markAsSkippedIfPosixIsMissing()
     {
         if (!\function_exists('posix_isatty')) {
