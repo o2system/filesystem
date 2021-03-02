@@ -34,10 +34,6 @@
     "ext-fileinfo": "*",
     "o2system/kernel": "*"
   },
-  "require-dev": {
-    "phpunit/phpunit": "^9.3",
-    "ext-posix": "*"
-  },
   "autoload": {
     "psr-4": {
       "O2System\\Filesystem\\": "src"
