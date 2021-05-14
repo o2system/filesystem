@@ -25,17 +25,17 @@ use O2System\Filesystem\Files\Abstracts\AbstractFile;
  */
 class IniFile extends AbstractFile
 {
-    protected $fileExtension = '.ini';
+    protected string $fileExtension = '.ini';
 
     /**
      * IniFile::readFile
      *
-     * @param string $filePath Path to the file.
+     * @param string|null $filePath Path to the file.
      * @param array  $options  Read file options.
      *
      * @return mixed
      */
-    public function readFile($filePath = null, array $options = [])
+    public function readFile(string $filePath = null, array $options = [])
     {
         $items = parse_ini_file(
             $filePath,
@@ -54,12 +54,12 @@ class IniFile extends AbstractFile
     /**
      * IniFile::writeFile
      *
-     * @param string $filePath Path to the file.
+     * @param string|null $filePath Path to the file.
      * @param array  $options  Write file options.
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function writeFile($filePath = null, array $options = [])
+    public function writeFile(string $filePath = null, array $options = []): bool
     {
         $filePath = empty($filePath)
             ? $this->filePath

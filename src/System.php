@@ -31,7 +31,7 @@ class System
      *
      * @return string Returns the description, as a string.
      */
-    public function getInfo()
+    public function getInfo(): string
     {
         return php_uname();
     }
@@ -45,7 +45,7 @@ class System
      *
      * @return string Host name. eg. localhost.example.com.
      */
-    public function getHostname()
+    public function getHostname(): string
     {
         return php_uname('n');
     }
@@ -59,7 +59,7 @@ class System
      *
      * @return string Operating system name. eg. FreeBSD.
      */
-    public function getName()
+    public function getName(): string
     {
         return php_uname('s');
     }
@@ -73,7 +73,7 @@ class System
      *
      * @return string Version information. Varies a lot between operating systems.
      */
-    public function getVersion()
+    public function getVersion(): string
     {
         return php_uname('v');
     }
@@ -87,7 +87,7 @@ class System
      *
      * @return string Release name. eg. 5.1.2-RELEASE.
      */
-    public function getRelease()
+    public function getRelease(): string
     {
         return php_uname('r');
     }
@@ -101,7 +101,7 @@ class System
      *
      * @return string Machine type. eg. i386.
      */
-    public function getMachine()
+    public function getMachine(): string
     {
         return php_uname('m');
     }
@@ -119,7 +119,7 @@ class System
      *
      * @return string Returns the interface type, as a lowercase string.
      */
-    public function getPhpSapi()
+    public function getPhpSapi(): string
     {
         return php_sapi_name();
     }
@@ -131,10 +131,10 @@ class System
      *
      * Gets the current PHP version
      *
-     * @return void If the optional extension parameter is specified, phpversion() returns the version of that
+     * @return false|string
      *              extension, or FALSE if there is no version information associated or the extension isn't enabled.
      */
-    public function getPhpVersion()
+    public function getPhpVersion(): ?string
     {
         return phpversion();
     }
@@ -146,11 +146,11 @@ class System
      *
      * Gets php extension version.
      *
-     * @param  string $extension An optional extension name.
+     * @param string $extension An optional extension name.
      *
-     * @return void
+     * @return false|string
      */
-    public function getPhpExtensionVersion($extension)
+    public function getPhpExtensionVersion(string $extension)
     {
         return phpversion($extension);
     }
@@ -162,11 +162,11 @@ class System
      *
      * Gets Php Extensions
      *
-     * @param  boolean $zendExtensions
+     * @param boolean $zendExtensions
      *
      * @return array Returns an array with the names of all modules compiled and loaded
      */
-    public function getPhpExtensions($zendExtensions = false)
+    public function getPhpExtensions(bool $zendExtensions = false): array
     {
         return get_loaded_extensions($zendExtensions);
     }
@@ -178,11 +178,11 @@ class System
      *
      * Get Status Is Php Extension Loaded.
      *
-     * @param  string $extension An optional extension name.
+     * @param string $extension An optional extension name.
      *
      * @return boolean
      */
-    public function isPhpExtensionLoaded($extension)
+    public function isPhpExtensionLoaded(string $extension): bool
     {
         return (bool)extension_loaded($extension);
     }
@@ -196,7 +196,7 @@ class System
      *
      * @return string Returns the Zend Engine version number, as a string.
      */
-    public function getZendVersion()
+    public function getZendVersion(): string
     {
         return zend_version();
     }
@@ -210,7 +210,7 @@ class System
      *
      * @return boolean Returns TRUE if function_name exists and is a function, FALSE otherwise.
      */
-    public function getZendOptimizerVersion()
+    public function getZendOptimizerVersion(): bool
     {
         return function_exists('zend_optimizer_version') ? zend_optimizer_version() : false;
     }
@@ -220,12 +220,12 @@ class System
     /**
      * System::getConfigurations
      *
-     * @param  null|string $extension An Optional extension name
-     * @param  boolean     $details
+     * @param string|null $extension An Optional extension name
+     * @param boolean $details
      *
      * @return mixed Returns the return value of the callback, or FALSE on error.
      */
-    public function getConfigurations($extension = null, $details = true)
+    public function getConfigurations(string $extension = null, bool $details = true)
     {
         return call_user_func_array('ini_get_all', func_get_args());
     }
@@ -239,7 +239,7 @@ class System
      *
      * @return string
      */
-    public function getMacAddress()
+    public function getMacAddress(): string
     {
         switch (PHP_OS) {
             default:
@@ -274,7 +274,7 @@ class System
      *
      * @return float
      */
-    public function getLoadAvg($interval = 1)
+    public function getLoadAvg(int $interval = 1): float
     {
         $rs = sys_getloadavg();
         $interval = $interval >= 1 && 3 <= $interval ? $interval : 1;
@@ -292,7 +292,7 @@ class System
      *
      * @return int
      */
-    public function getCpuCores()
+    public function getCpuCores(): int
     {
         $numCpus = 1;
         if (is_file('/proc/cpuinfo')) {

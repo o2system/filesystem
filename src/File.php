@@ -62,7 +62,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setGroup($group)
+    public function setGroup($group): bool
     {
         $params[] = $this->getRealPath();
         $params[] = $group;
@@ -86,7 +86,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setMode($mode)
+    public function setMode($mode): bool
     {
         $params[] = $this->getRealPath();
         $params[] = $mode;
@@ -106,7 +106,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setOwner($user)
+    public function setOwner($user): bool
     {
         $params[] = $this->getRealPath();
         $params[] = $user;
@@ -125,7 +125,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setLink($link)
+    public function setLink($link): bool
     {
         $params[] = $this->getRealPath();
         $params[] = $link;
@@ -156,7 +156,7 @@ class File extends SplFileInfo
      *
      * @return string   The function returns the read data or FALSE on failure.
      */
-    public function getContents($useIncludePath = false, $context = null, $offset = 0, $maxlen = 0)
+    public function getContents(bool $useIncludePath = false, $context = null, int $offset = 0, int $maxlen = 0): string
     {
         $params[] = $this->getRealPath();
         $params[] = $useIncludePath;
@@ -182,11 +182,11 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function touch($time = null, $atime = null)
+    public function touch($time = null, $atime = null): bool
     {
         $params[] = $this->getRealPath();
-        $params[] = (isset($time) ? $time : time());
-        $params[] = (isset($atime) ? $atime : time());
+        $params[] = ($time ?? time());
+        $params[] = ($atime ?? time());
 
         return call_user_func_array('touch', $params);
     }
@@ -287,7 +287,7 @@ class File extends SplFileInfo
      * @static
      * @return array Returns the MIME types array from config/mimes.php
      */
-    public static function getMimes()
+    public static function getMimes(): array
     {
         static $mimes;
 
@@ -314,7 +314,7 @@ class File extends SplFileInfo
      * @return int  Returns the number of bytes read from the file. If an error occurs, FALSE is returned and unless
      *              the function was called as @readfile(), an error message is printed.
      */
-    public function read($useIncludePath = false, $context = null)
+    public function read(bool $useIncludePath = false, $context = null): int
     {
         $params[] = $this->getRealPath();
         $params[] = $useIncludePath;
@@ -336,7 +336,7 @@ class File extends SplFileInfo
      *
      * @return bool
      */
-    public function write($filePath, $contents, $mode = 'wb')
+    public function write($filePath, string $contents, string $mode = 'wb'): bool
     {
         if (false !== ($fp = $this->create($filePath, $mode))) {
             flock($fp, LOCK_EX);
@@ -363,14 +363,14 @@ class File extends SplFileInfo
      *
      * Create a File
      *
-     * @param  string|null $filePath
-     * @param  string      $mode
+     * @param string|null $filePath
+     * @param string $mode
      *
      * @return resource
      */
-    public function create($filePath = null, $mode = 'wb')
+    public function create(string $filePath = null, string $mode = 'wb')
     {
-        $filePath = isset($filePath) ? $filePath : $this->filePath;
+        $filePath = $filePath ?? $this->filePath;
         $dir = dirname($filePath);
 
         if ( ! is_writable($dir)) {
@@ -401,7 +401,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function rename($newFilename, $context = null)
+    public function rename(string $newFilename, $context = null): bool
     {
         $params[] = $this->getRealPath();
         $params[] = dirname($this->getRealPath()) . DIRECTORY_SEPARATOR . $newFilename;
@@ -423,7 +423,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function copy($destination, $context = null)
+    public function copy(string $destination, $context = null): bool
     {
         $params[] = $this->getRealPath();
         $params[] = $destination;
@@ -444,7 +444,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function delete($context = null)
+    public function delete($context = null): bool
     {
         $params[] = $this->getRealPath();
         $params[] = $context;
@@ -460,7 +460,7 @@ class File extends SplFileInfo
      * @param string $mode
      * @return Stream
      */
-    public function getStream($mode = 'rb')
+    public function getStream(string $mode = 'rb'): Stream
     {
         return new Stream($this, $mode);
     }

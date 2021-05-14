@@ -29,14 +29,14 @@ abstract class AbstractFile extends AbstractRepository
      *
      * @var string
      */
-    protected $fileExtension;
+    protected string $fileExtension;
 
     /**
      * AbstractFile::$filePath
      *
      * @var string
      */
-    protected $filePath;
+    protected string $filePath;
 
     // ------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ abstract class AbstractFile extends AbstractRepository
      *
      * @param string|null $filePath Path to the file.
      */
-    final public function __construct($filePath = null)
+    final public function __construct(string $filePath = null)
     {
         if (isset($filePath)) {
             $this->filePath = $filePath;
@@ -57,11 +57,11 @@ abstract class AbstractFile extends AbstractRepository
     /**
      * AbstractFile::createFile
      *
-     * @param string $filePath Path to the file.
+     * @param string|null $filePath Path to the file.
      *
      * @return static
      */
-    final public function createFile($filePath = null)
+    final public function createFile(string $filePath = null): self
     {
         if (isset($filePath)) {
             $this->filePath = $filePath;
@@ -79,22 +79,22 @@ abstract class AbstractFile extends AbstractRepository
     /**
      * AbstractFile::readFile
      *
-     * @param string $filePath Path to the file.
+     * @param string|null $filePath Path to the file.
      * @param array  $options  Read file options.
      *
      * @return mixed
      */
-    abstract public function readFile($filePath = null, array $options = []);
+    abstract public function readFile(string $filePath = null, array $options = []);
 
     // ------------------------------------------------------------------------
 
     /**
      * AbstractFile::writeFile
      *
-     * @param string $filePath Path to the file.
+     * @param string|null $filePath Path to the file.
      * @param array  $options  Write file options.
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    abstract public function writeFile($filePath = null, array $options = []);
+    abstract public function writeFile(string $filePath = null, array $options = []): bool;
 }

@@ -29,13 +29,13 @@ class Directory extends SplDirectoryInfo
      *
      * Make a directory.
      *
-     * @param string $dir       Directory real path.
-     * @param int    $mode      Directory mode.
-     * @param bool   $recursive Make directory creation recursive.
+     * @param string|null $dir       Directory real path.
+     * @param int $mode      Directory mode.
+     * @param bool $recursive Make directory creation recursive.
      *
      * @return bool|\O2System\Spl\Info\SplDirectoryInfo
      */
-    public function make($dir = null, $mode = 0777, $recursive = true)
+    public function make(string $dir = null, int $mode = 0777, bool $recursive = true)
     {
         $dir = is_null($dir) ? $this->getPathName() : $dir;
 
@@ -75,7 +75,7 @@ class Directory extends SplDirectoryInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function delete($fileOnly = false)
+    public function delete(bool $fileOnly = false): bool
     {
         return $this->recursiveDelete($this->getRealPath(), $fileOnly);
     }
@@ -86,11 +86,11 @@ class Directory extends SplDirectoryInfo
      * Directory::recursiveDelete
      *
      * @param string $dir      Directory path.
-     * @param bool   $fileOnly Remove files only and keep the directory structure.
+     * @param bool $fileOnly Remove files only and keep the directory structure.
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    private function recursiveDelete($dir, $fileOnly = false)
+    private function recursiveDelete(string $dir, bool $fileOnly = false): bool
     {
         $dir = realpath($dir);
 
@@ -129,7 +129,7 @@ class Directory extends SplDirectoryInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setGroup($group)
+    public function setGroup($group): bool
     {
         $params[] = $this->getRealPath();
         $params[] = $group;
@@ -154,7 +154,7 @@ class Directory extends SplDirectoryInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setMode($mode)
+    public function setMode(int $mode): bool
     {
         $params[] = $this->getRealPath();
         $params[] = $mode;
@@ -174,7 +174,7 @@ class Directory extends SplDirectoryInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setOwner($user)
+    public function setOwner($user): bool
     {
         $params[] = $this->getRealPath();
         $params[] = $user;
@@ -193,7 +193,7 @@ class Directory extends SplDirectoryInfo
      *
      * @return array
      */
-    public function findFilesByExtension($extension)
+    public function findFilesByExtension(string $extension): array
     {
         $extension = trim($extension, '.');
 
@@ -226,11 +226,11 @@ class Directory extends SplDirectoryInfo
      *
      * Find Files By Filename
      *
-     * @param  string $filename
+     * @param string $filename
      *
      * @return array
      */
-    public function findFilesByFilename($filename)
+    public function findFilesByFilename(string $filename): array
     {
         $directoryIterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($this->getRealPath()),

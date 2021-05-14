@@ -92,7 +92,7 @@ class Ftp
      * @return bool Returns TRUE on success or FALSE on failure.
      * @throws RuntimeException
      */
-    public function connect()
+    public function connect(): bool
     {
         if (false === ($this->handle = @ftp_connect($this->config[ 'hostname' ], $this->config[ 'port' ]))) {
             if ($this->debugMode === true) {
@@ -129,14 +129,14 @@ class Ftp
      *
      * Download a file from a remote server to the local server
      *
-     * @param   string $remoteFilePath Remote file path.
-     * @param   string $localFilePath  Local destination file path.
-     * @param   string $mode           File transfer mode.
+     * @param string $remoteFilePath Remote file path.
+     * @param string $localFilePath  Local destination file path.
+     * @param string $mode           File transfer mode.
      *
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function download($remoteFilePath, $localFilePath, $mode = 'auto')
+    public function download(string $remoteFilePath, string $localFilePath, string $mode = 'auto'): bool
     {
         if ( ! $this->isConnected()) {
             return false;
@@ -176,7 +176,7 @@ class Ftp
      * @return bool Returns TRUE on success or FALSE on failure.
      * @throws RuntimeException
      */
-    protected function isConnected()
+    protected function isConnected(): bool
     {
         if ( ! is_resource($this->handle)) {
             if ($this->debugMode === true) {
@@ -198,11 +198,11 @@ class Ftp
      *
      * Extract the file extension.
      *
-     * @param   string $filename String of filename to be extracted.
+     * @param string $filename String of filename to be extracted.
      *
      * @return  string By default it's set into txt file extension.
      */
-    protected function getExtension($filename)
+    protected function getExtension(string $filename): string
     {
         return (($dot = strrpos($filename, '.')) === false)
             ? 'txt'
@@ -216,11 +216,11 @@ class Ftp
      *
      * Gets upload transfer mode.
      *
-     * @param   string $ext Filename extension.
+     * @param string $ext Filename extension.
      *
      * @return  string By default it's set into ascii mode.
      */
-    protected function getTransferMode($ext)
+    protected function getTransferMode(string $ext): string
     {
         return in_array(
             $ext,
@@ -238,13 +238,13 @@ class Ftp
      *
      * Rename a file on ftp server.
      *
-     * @param   string $oldFilename Old filename.
-     * @param   string $newFilename New filename.
+     * @param string $oldFilename Old filename.
+     * @param string $newFilename New filename.
      *
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function rename($oldFilename, $newFilename)
+    public function rename(string $oldFilename, string $newFilename)
     {
         if ( ! $this->isConnected()) {
             return false;
@@ -272,13 +272,13 @@ class Ftp
      *
      * Moves a file on the FTP server.
      *
-     * @param    string $oldRemoteFilePath Old file path on the FTP server.
-     * @param    string $newRemoteFilePath New file path on the FTP server.
+     * @param string $oldRemoteFilePath Old file path on the FTP server.
+     * @param string $newRemoteFilePath New file path on the FTP server.
      *
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function move($oldRemoteFilePath, $newRemoteFilePath)
+    public function move(string $oldRemoteFilePath, string $newRemoteFilePath): bool
     {
         if ( ! $this->isConnected()) {
             return false;
@@ -306,12 +306,12 @@ class Ftp
      *
      * Deletes a file on the FTP server
      *
-     * @param   string $filePath Path to the file to be deleted.
+     * @param string $filePath Path to the file to be deleted.
      *
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function deleteFile($filePath)
+    public function deleteFile(string $filePath): bool
     {
         if ( ! $this->isConnected()) {
             return false;
@@ -340,12 +340,12 @@ class Ftp
      * Delete a folder and recursively delete everything (including sub-folders)
      * contained within it on the FTP server.
      *
-     * @param   string $remotePath Path to the directory to be deleted on the FTP server.
+     * @param string $remotePath Path to the directory to be deleted on the FTP server.
      *
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function deleteDir($remotePath)
+    public function deleteDir(string $remotePath): bool
     {
         if ( ! $this->isConnected()) {
             return false;
@@ -385,12 +385,12 @@ class Ftp
      *
      * FTP List files in the specified directory.
      *
-     * @param    string $remotePath Path to the remote directory.
+     * @param string $remotePath Path to the remote directory.
      *
      * @return  array|bool Returns array of files list or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function getFiles($remotePath = '.')
+    public function getFiles(string $remotePath = '.')
     {
         return $this->isConnected()
             ? ftp_nlist($this->handle, $remotePath)
@@ -409,13 +409,13 @@ class Ftp
      * Whatever the directory structure of the original file path will be
      * recreated on the server.
      *
-     * @param    string $localPath  Path to source with trailing slash
-     * @param    string $remotePath Path to destination - include the base folder with trailing slash
+     * @param string $localPath  Path to source with trailing slash
+     * @param string $remotePath Path to destination - include the base folder with trailing slash
      *
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function mirror($localPath, $remotePath)
+    public function mirror(string $localPath, string $remotePath): bool
     {
         if ( ! $this->isConnected()) {
             return false;
@@ -461,13 +461,13 @@ class Ftp
      * so we do it by trying to change to a particular directory.
      * Internally, this parameter is only used by the "mirror" function below.
      *
-     * @param   string $remotePath    The remote directory path.
-     * @param   bool   $suppressDebug Suppress debug mode.
+     * @param string $remotePath    The remote directory path.
+     * @param bool $suppressDebug Suppress debug mode.
      *
      * @return  bool  Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function changeDir($remotePath, $suppressDebug = false)
+    public function changeDir(string $remotePath, bool $suppressDebug = false): bool
     {
         if ( ! $this->isConnected()) {
             return false;
@@ -495,13 +495,13 @@ class Ftp
      *
      * Create a remote directory on the ftp server.
      *
-     * @param   string $remotePath  The remote directory that will be created on ftp server.
-     * @param   int    $permissions The remote directory permissions.
+     * @param string $remotePath  The remote directory that will be created on ftp server.
+     * @param int|null $permissions The remote directory permissions.
      *
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function makeDir($remotePath, $permissions = null)
+    public function makeDir(string $remotePath, int $permissions = null): bool
     {
         if ($remotePath === '' OR ! $this->isConnected()) {
             return false;
@@ -534,13 +534,13 @@ class Ftp
      *
      * Set remote file permissions.
      *
-     * @param   string $remotePath Path to the remote directory or file to be changed.
-     * @param   int    $mode       Remote directory permissions mode.
+     * @param string $remotePath Path to the remote directory or file to be changed.
+     * @param int $mode       Remote directory permissions mode.
      *
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function setChmod($remotePath, $mode)
+    public function setChmod(string $remotePath, int $mode): bool
     {
         if ( ! $this->isConnected()) {
             return false;
@@ -566,15 +566,15 @@ class Ftp
      *
      * Uploader a file to the ftp server.
      *
-     * @param    string $localFilePath  Local source file path.
-     * @param    string $remoteFilePath Remote destination file path.
-     * @param    string $mode           File transfer mode.
-     * @param    int    $permissions    Remote file permissions.
+     * @param string $localFilePath  Local source file path.
+     * @param string $remoteFilePath Remote destination file path.
+     * @param string $mode           File transfer mode.
+     * @param int|null $permissions    Remote file permissions.
      *
      * @return  bool Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function upload($localFilePath, $remoteFilePath, $mode = 'auto', $permissions = null)
+    public function upload(string $localFilePath, string $remoteFilePath, string $mode = 'auto', int $permissions = null): bool
     {
         if ( ! $this->isConnected()) {
             return false;
@@ -623,10 +623,8 @@ class Ftp
      * @return  bool    Returns TRUE on success or FALSE on failure.
      * @throws  RuntimeException
      */
-    public function close()
+    public function close(): bool
     {
-        return $this->isConnected()
-            ? @ftp_close($this->handle)
-            : false;
+        return $this->isConnected() && @ftp_close($this->handle);
     }
 }

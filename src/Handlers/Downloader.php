@@ -142,9 +142,9 @@ class Downloader
      * Downloader::__construct
      *
      * @param string $filePath
-     * @param int    $mode
+     * @param int $mode
      */
-    public function __construct($filePath, $mode = self::MODE_FILESTREAM)
+    public function __construct(string $filePath, int $mode = self::MODE_FILESTREAM)
     {
         global $HTTP_SERVER_VARS;
 
@@ -203,7 +203,7 @@ class Downloader
         // Range
         if (isset($_SERVER[ 'HTTP_RANGE' ]) || isset($HTTP_SERVER_VARS[ 'HTTP_RANGE' ])) {
             $this->partialRequest = true;
-            $http_range = isset($_SERVER[ 'HTTP_RANGE' ]) ? $_SERVER[ 'HTTP_RANGE' ] : $HTTP_SERVER_VARS[ 'HTTP_RANGE' ];
+            $http_range = $_SERVER['HTTP_RANGE'] ?? $HTTP_SERVER_VARS['HTTP_RANGE'];
             if (stripos($http_range, 'bytes') === false) {
                 output()
                     ->withStatus(416, 'Requested Range Not Satisfiable')
@@ -229,9 +229,9 @@ class Downloader
      * Downloader::forceDownload
      *
      * @param string|null $filename
-     * @param string      $filemime
+     * @param string $filemime
      */
-    public function forceDownload($filename = null, $filemime = 'application/octet-stream')
+    public function forceDownload(string $filename = null, string $filemime = 'application/octet-stream')
     {
         // Force mime
         $this->filemime = $filemime;
@@ -245,9 +245,9 @@ class Downloader
      *
      * @param string|null $filename
      */
-    public function download($filename = null)
+    public function download(string $filename = null)
     {
-        $filename = isset($filename) ? $filename : $this->fileinfo[ 'basename' ];
+        $filename = $filename ?? $this->fileinfo['basename'];
 
         if ($this->partialRequest) {
             if ($this->resumeable) {
@@ -380,7 +380,7 @@ class Downloader
      *
      * @return static
      */
-    public function resumeable($status = true)
+    public function resumeable(bool $status = true): self
     {
         $this->partialRequest = $this->resumeable = ( bool )$status;
 
@@ -396,7 +396,7 @@ class Downloader
      *
      * @return static
      */
-    public function speedLimit($limit)
+    public function speedLimit(int $limit):self
     {
         $limit = intval($limit);
         $this->speedLimit = $limit;

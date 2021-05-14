@@ -27,12 +27,12 @@ class ZipFile extends AbstractFile
     /**
      * XmlFile::readFile
      *
-     * @param string $filePath Path to the file.
+     * @param string|null $filePath Path to the file.
      * @param array  $options  Read file options.
      *
      * @return mixed
      */
-    public function readFile($filePath = null, array $options = [])
+    public function readFile(string $filePath = null, array $options = [])
     {
         $filePath = empty($filePath)
             ? $this->filePath
@@ -59,12 +59,12 @@ class ZipFile extends AbstractFile
     /**
      * ZipFile::writeFile
      *
-     * @param string $filePath Path to the file.
+     * @param string|null $filePath Path to the file.
      * @param array  $options  Write file options.
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function writeFile($filePath = null, array $options = [])
+    public function writeFile(string $filePath = null, array $options = []): bool
     {
         $filePath = empty($filePath)
             ? $this->filePath
@@ -101,10 +101,10 @@ class ZipFile extends AbstractFile
      *
      * Zipped a folder (include itself).
      *
-     * @param string      $sourcePath Path of directory to be zip.
+     * @param string $sourcePath Path of directory to be zip.
      * @param string|null $filePath   Path to the zip file.
      */
-    public function compress($sourcePath, $filePath = null)
+    public function compress(string $sourcePath, string $filePath = null)
     {
         $filePath = empty($filePath)
             ? $this->filePath
@@ -124,11 +124,11 @@ class ZipFile extends AbstractFile
      *
      * Add files and sub-directories in a folder to zip file.
      *
-     * @param string      $directory       Path of directory to be zip.
-     * @param int         $exclusiveLength Number of text to be exclusive from the file path.
+     * @param string $directory       Path of directory to be zip.
+     * @param int $exclusiveLength Number of text to be exclusive from the file path.
      * @param \ZipArchive $zipArchive      Zip Archive instance.
      */
-    private function recursiveCompress($directory, $exclusiveLength, &$zipArchive)
+    private function recursiveCompress(string $directory, int $exclusiveLength, \ZipArchive &$zipArchive)
     {
         $handle = opendir($directory);
 
@@ -160,7 +160,7 @@ class ZipFile extends AbstractFile
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function extract($destinationPath)
+    public function extract(string $destinationPath): bool
     {
         if (extension_loaded('zip')) {
             if (is_file($this->filePath)) {

@@ -30,7 +30,7 @@ class Stream
      * @param File   $file
      * @param string $mode
      */
-    public function __construct(File $file, $mode = 'rb')
+    public function __construct(File $file, string $mode = 'rb')
     {
         if(is_file($file->getRealPath())) {
             $this->resource = fopen($file->getRealPath(), $mode);
@@ -45,7 +45,7 @@ class Stream
      * @param int $point
      * @return static
      */
-    public function setPointer($point)
+    public function setPointer(int $point): self
     {
         $this->pointer = $point;
         return $this;
@@ -58,7 +58,7 @@ class Stream
      *
      * @return int
      */
-    public function getPointer()
+    public function getPointer(): int
     {
         return $this->pointer;
     }
@@ -82,7 +82,7 @@ class Stream
      *
      * @param int $length
      */
-    public function forward($length)
+    public function forward(int $length)
     {
         $this->pointer += $length;
         fseek($this->resource, $this->pointer);
@@ -95,7 +95,7 @@ class Stream
      *
      * @param int $length
      */
-    public function rewind($length)
+    public function rewind(int $length)
     {
         $this->pointer -= $length;
         fseek($this->resource, $this->pointer);
@@ -123,7 +123,7 @@ class Stream
      *
      * @return int
      */
-    public function readByteInteger()
+    public function readByteInteger(): int
     {
         $data = fread($this->resource, 1);
         $this->pointer++;
@@ -138,7 +138,7 @@ class Stream
      * @param string $byte
      * @return bool
      */
-    public function isValidByte($byte)
+    public function isValidByte(string $byte): bool
     {
         if (fgetc($this->resource) == chr($byte)) {
             fseek($this->resource, $this->pointer);
@@ -156,7 +156,7 @@ class Stream
      *
      * @return bool
      */
-    public function isEndOfFile()
+    public function isEndOfFile(): bool
     {
         if (fgetc($this->resource) === false) {
             return true;

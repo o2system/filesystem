@@ -27,17 +27,20 @@ use O2System\Spl\Iterators\ArrayIterator;
  */
 class XmlFile extends AbstractFile
 {
-    protected $fileExtension = '.xml';
+    /**
+     * @var string
+     */
+    protected string $fileExtension = '.xml';
 
     /**
      * XmlFile::readFile
      *
-     * @param string $filePath Path to the file.
+     * @param string|null $filePath Path to the file.
      * @param array  $options  Read file options.
      *
-     * @return mixed
+     * @return ArrayIterator
      */
-    public function readFile($filePath = null, array $options = [])
+    public function readFile(string $filePath = null, array $options = []): ArrayIterator
     {
         $filePath = empty($filePath)
             ? $this->filePath
@@ -67,12 +70,13 @@ class XmlFile extends AbstractFile
     /**
      * XmlFile::writeFile
      *
-     * @param string $filePath Path to the file.
-     * @param array  $options  Write file options.
+     * @param string|null $filePath Path to the file.
+     * @param array $options Write file options.
      *
      * @return bool Returns TRUE on success or FALSE on failure.
+     * @throws \Exception
      */
-    public function writeFile($filePath = null, array $options = [])
+    public function writeFile(string $filePath = null, array $options = []): bool
     {
         $filePath = empty($filePath)
             ? $this->filePath
