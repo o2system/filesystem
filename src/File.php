@@ -15,6 +15,7 @@ namespace O2System\Filesystem;
 
 // ------------------------------------------------------------------------
 
+use O2System\Filesystem\Exception\FileNotFoundException;
 use O2System\Filesystem\Handlers\Stream;
 use O2System\Spl\Info\SplFileInfo;
 
@@ -46,6 +47,7 @@ class File extends SplFileInfo
             $this->filePath = $filePath;
             parent::__construct($filePath);
         }
+//        throw new FileNotFoundException(null, 0, null, $filePath);
     }
 
     // ------------------------------------------------------------------------
@@ -125,7 +127,7 @@ class File extends SplFileInfo
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setLink($link): bool
+    public function setLink(string $link): bool
     {
         $params[] = $this->getRealPath();
         $params[] = $link;
